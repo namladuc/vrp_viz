@@ -13,13 +13,13 @@ def cheapest_insertion(dist_matrix, demands, capacity):
             for r_idx, route in enumerate(routes):
                 if route_loads[r_idx] + demands[u] > capacity:
                     continue
-                # Chèn vào đầu hoặc cuối tuyến
+                # Chọn vị trí
                 for pos in range(len(route) + 1):
-                    if pos == 0:  # Chèn vào đầu
+                    if pos == 0:            # Chèn vào đầu
                         i, j = 0, route[0]
                     elif pos == len(route):  # Chèn vào cuối
                         i, j = route[-1], 0
-                    else:  # Chèn vào giữa
+                    else:                     # Chèn vào giữa
                         i, j = route[pos - 1], route[pos]
                     # Đây là chi phí thay cạnh (i, j) = (i, u) + (u, j)
                     cost = dist_matrix[i][u] + dist_matrix[u][j] - dist_matrix[i][j]
