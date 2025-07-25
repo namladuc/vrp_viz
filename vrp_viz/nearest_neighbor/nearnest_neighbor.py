@@ -2,11 +2,15 @@ def nearest_neighbor(dist_matrix, demands, capacity):
     """Thuật toán Người láng giềng gần nhất."""
     num_customers = len(demands) - 1
     unvisited = list(range(1, num_customers + 1))
+    # B1: Khởi tạo tuyến đường ban đầu là rỗng
     all_routes = []
+    # Thực hiện việc chèn chừng nào còn khách hàng chưa được phục vụ
     while unvisited:
+        # B2: Gọi ra 1 một tuyến đường mới
         current_route = []
         current_load = 0
         current_location = 0
+        # B3: Ta sẽ liên tục tìm khách hàng gần nhất cho đến khi không còn khách hàng nào có thể thêm vào tuyến đường
         while True:
             best_candidate = None
             min_dist = float("inf")
@@ -23,6 +27,7 @@ def nearest_neighbor(dist_matrix, demands, capacity):
                 unvisited.remove(best_candidate)
             else:
                 break
+        # B4: Thêm tuyến đường vào danh sách tất cả các tuyến đường
         if current_route:
             all_routes.append(current_route)
     return all_routes
