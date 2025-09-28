@@ -3,6 +3,12 @@
 ## Overview
 This project provides a set of tools and algorithms to solve and visualize the Vehicle Routing Problem (VRP). It includes implementations of heuristic algorithms such as Nearest Neighbor, Cheapest Insertion, and Clarke-Wright Savings. The project supports step-by-step visualization of these algorithms using Streamlit and can generate animations in GIF format for better understanding.
 
+## Dev
+
+```
+uvicorn server_vrp:app --reload
+```
+
 ---
 
 ## Project Structure

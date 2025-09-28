@@ -1,0 +1,3061 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_b0926b21c99dee26e9378ac69ce56ec5 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ardhi/Leaflet.MousePosition/src/L.Control.MousePosition.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-ant-path@1.1.2/dist/leaflet-ant-path.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.css"/>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_b0926b21c99dee26e9378ac69ce56ec5" ></div>
+        
+    
+    <div id="vrp-info-box" style="
+        position: fixed; bottom: 12px; right: 12px; z-index: 1000;
+        background: rgba(255,255,255,0.96); padding: 12px 14px; border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 360px;
+        font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-weight:600;">VRP – Stepwise Viewer</div>
+        <button id="vrp-info-toggle" style="border:none;background:#f2f2f2;padding:4px 8px;border-radius:6px;cursor:pointer;">Hide</button>
+      </div>
+      <div id="vrp-info-body" style="font-size:13px;line-height:1.35;margin-top:6px;"><b>Tổng quan:</b> 5 route, 12 bước.<br><span style='opacity:0.7'>Dùng Step Controller (góc phải-trên) để duyệt step.</span></div>
+    </div>
+    <script>
+      (function(){
+        const btn  = document.getElementById('vrp-info-toggle');
+        const body = document.getElementById('vrp-info-body');
+        let shown = true;
+        btn.addEventListener('click', function(){
+          shown = !shown;
+          body.style.display = shown ? 'block' : 'none';
+          btn.textContent = shown ? 'Hide' : 'Show';
+        });
+      })();
+    </script>
+    
+    
+    <div id="vrp-step-ctrl" style="
+        position: fixed; top: 12px; right: 12px; z-index: 1100;
+        background: rgba(255,255,255,0.96); padding: 10px 12px; border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 320px;
+        font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+      <div style="font-weight:600; margin-bottom:8px;">Step Controller</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button id="btnPrev"  style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fafafa;cursor:pointer;">Prev</button>
+        <button id="btnNext"  style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fafafa;cursor:pointer;">Next</button>
+        <button id="btnPlay"  style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fafafa;cursor:pointer;">Play</button>
+        <button id="btnPause" style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fafafa;cursor:pointer;">Pause</button>
+        <button id="btnReset" style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fafafa;cursor:pointer;">Reset</button>
+      </div>
+      <div style="margin-top:8px;">
+        <input id="stepRange" type="range" min="0" max="0" value="0" style="width:100%;">
+        <div id="stepLabel" style="font-size:12px;margin-top:4px;color:#666;">—</div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        // map thực sự (biến global do Folium tạo)
+        var mapRef = map_b0926b21c99dee26e9378ac69ce56ec5;
+        var stepVars   = ["feature_group_46d8744b560c8ad6bf2cf897ecf78184", "feature_group_d0b61511a1cc2cd4b5f618827f77ea95", "feature_group_f0cec44823830583bfbc6852cd0a662b", "feature_group_7e5cd32d32a08e587c51bfd56805def5", "feature_group_128d5ce3401dfdc7eba3ec59dd12ef05", "feature_group_19eec24d51eb12a0a9855bd4ef906304", "feature_group_1e3f87ab342c18f220388fc14d893491", "feature_group_f4ed2c10496439074398b0c43656ac61", "feature_group_9270db5c3e4a8678dd94a454bfb23d3c", "feature_group_94a29e91c497beee9b6f4bede68acc6e", "feature_group_692a36da9c2eb7f99de9cb951ac43355", "feature_group_6c7a926977cb5272a613c5a1b87b87e9"];
+        var stepLabels = ["Step 1: v0 \u2022 0\u21922", "Step 2: v0 \u2022 2\u21925", "Step 3: v0 \u2022 5\u21920", "Step 4: v1 \u2022 0\u21927", "Step 5: v1 \u2022 7\u21920", "Step 6: v2 \u2022 0\u21926", "Step 7: v2 \u2022 6\u21924", "Step 8: v2 \u2022 4\u21920", "Step 9: v3 \u2022 0\u21923", "Step 10: v3 \u2022 3\u21920", "Step 11: v4 \u2022 0\u21921", "Step 12: v4 \u2022 1\u21920"];
+        var cumulative = false;
+
+        function getLayerByVarName(varName) {
+          // Folium đặt từng FeatureGroup vào window[varName]
+          var l = window[varName];
+          // đôi khi chưa sẵn sàng; chỉ nhận nếu có addTo/remove
+          if (l && (typeof l.addTo === 'function' || typeof l.addLayer === 'function')) return l;
+          return null;
+        }
+
+        function safeHasLayer(map, layer) {
+          if (!map || !layer) return false;
+          if (typeof map.hasLayer === 'function') return map.hasLayer(layer);
+          var id = layer._leaflet_id;
+          return !!(map._layers && id && map._layers[id]);
+        }
+
+        function safeAddLayer(map, layer) {
+          if (!map || !layer) return;
+          if (!safeHasLayer(map, layer)) {
+            try { map.addLayer(layer); } catch(e) { console.warn(e); }
+          }
+        }
+
+        function safeRemoveLayer(map, layer) {
+          if (!map || !layer) return;
+          if (safeHasLayer(map, layer)) {
+            try { map.removeLayer(layer); } catch(e) { console.warn(e); }
+          }
+        }
+
+        function showIndex(idx) {
+          for (var i=0; i<stepVars.length; i++) {
+            var layer = getLayerByVarName(stepVars[i]);
+            if (!layer) continue; // bỏ qua layer chưa khởi tạo
+            if (cumulative ? (i <= idx) : (i === idx)) {
+              safeAddLayer(map_b0926b21c99dee26e9378ac69ce56ec5, layer);
+            } else {
+              safeRemoveLayer(map_b0926b21c99dee26e9378ac69ce56ec5, layer);
+            }
+          }
+          var labEl = document.getElementById('stepLabel');
+          if (labEl) labEl.textContent = stepLabels[idx] || ("Step " + (idx+1));
+          var rngEl = document.getElementById('stepRange');
+          if (rngEl) rngEl.value = idx;
+        }
+
+        // slider
+        var rangeEl = document.getElementById('stepRange');
+        if (rangeEl) {
+          rangeEl.max = Math.max(0, stepVars.length - 1);
+          rangeEl.addEventListener('input', function() {
+            cur = clamp(parseInt(this.value || "0", 10));
+            showIndex(cur);
+          });
+        }
+
+        var cur = 0;
+        var timer = null;
+        function clamp(v) { return Math.max(0, Math.min(stepVars.length-1, isNaN(v)?0:v)); }
+        function next()  { cur = clamp(cur+1); showIndex(cur); }
+        function prev()  { cur = clamp(cur-1); showIndex(cur); }
+        function play()  {
+          if (timer) return;
+          timer = setInterval(function(){
+            if (cur >= stepVars.length-1) { clearInterval(timer); timer = null; return; }
+            cur += 1; showIndex(cur);
+          }, 900);
+        }
+        function pause() { if (timer) { clearInterval(timer); timer = null; } }
+        function reset() { pause(); cur = 0; showIndex(cur); }
+
+        var bNext  = document.getElementById('btnNext');
+        var bPrev  = document.getElementById('btnPrev');
+        var bPlay  = document.getElementById('btnPlay');
+        var bPause = document.getElementById('btnPause');
+        var bReset = document.getElementById('btnReset');
+        if (bNext)  bNext.onclick  = next;
+        if (bPrev)  bPrev.onclick  = prev;
+        if (bPlay)  bPlay.onclick  = play;
+        if (bPause) bPause.onclick = pause;
+        if (bReset) bReset.onclick = reset;
+
+        // khởi tạo: tìm step nào đang bật; nếu không có thì chọn 0
+        (function initFindCurrent(){
+          var found = -1;
+          for (var i=0; i<stepVars.length; i++) {
+            var layer = getLayerByVarName(stepVars[i]);
+            if (safeHasLayer(map_b0926b21c99dee26e9378ac69ce56ec5, layer)) { found = i; break; }
+          }
+          cur = (found >= 0) ? found : 0;
+          showIndex(cur);
+        })();
+      })();
+    </script>
+    
+</body>
+<script>
+    
+    
+            var map_b0926b21c99dee26e9378ac69ce56ec5 = L.map(
+                "map_b0926b21c99dee26e9378ac69ce56ec5",
+                {
+                    center: [21.00863343014004, 105.81339209779624],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": true,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+
+            
+
+        
+    
+            var tile_layer_a7971064a07b75d9c5d1b04dfb522d96 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_a7971064a07b75d9c5d1b04dfb522d96.addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+        
+    
+            var tile_layer_1941dd3cb2ffb090aa713540cc2b7afb = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detect_retina": false, "max_native_zoom": 19, "max_zoom": 19, "min_zoom": 0, "no_wrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+            var mini_map_23fb8b892c62322c0a54d746d6dd92f7 = new L.Control.MiniMap(
+                tile_layer_1941dd3cb2ffb090aa713540cc2b7afb,
+                {
+  "position": "bottomright",
+  "width": 150,
+  "height": 150,
+  "collapsedWidth": 25,
+  "collapsedHeight": 25,
+  "zoomLevelOffset": -5,
+  "centerFixed": false,
+  "zoomAnimation": false,
+  "toggleDisplay": true,
+  "autoToggleDisplay": false,
+  "minimized": true,
+}
+            );
+            map_b0926b21c99dee26e9378ac69ce56ec5.addControl(mini_map_23fb8b892c62322c0a54d746d6dd92f7);
+        
+    
+            L.control.fullscreen(
+                {
+  "position": "topleft",
+  "title": "Full Screen",
+  "titleCancel": "Exit Full Screen",
+  "forceSeparateButton": false,
+}
+            ).addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+        
+    
+            var measure_control_7c7c11d33378961bc6d834838b362a2c = new L.Control.Measure(
+                {
+  "position": "topright",
+  "primaryLengthUnit": "meters",
+  "secondaryLengthUnit": "kilometers",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_b0926b21c99dee26e9378ac69ce56ec5.addControl(measure_control_7c7c11d33378961bc6d834838b362a2c);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var mouse_position_0ef1212b048baf4f1d20315480ed8f88 = new L.Control.MousePosition(
+                {
+  "position": "bottomleft",
+  "separator": " | ",
+  "emptyString": "Unavailable",
+  "lngFirst": false,
+  "numDigits": 5,
+  "prefix": "Lat/Lon",
+}
+            );
+            mouse_position_0ef1212b048baf4f1d20315480ed8f88.options["latFormatter"] =
+                undefined;
+            mouse_position_0ef1212b048baf4f1d20315480ed8f88.options["lngFormatter"] =
+                undefined;
+            map_b0926b21c99dee26e9378ac69ce56ec5.addControl(mouse_position_0ef1212b048baf4f1d20315480ed8f88);
+        
+    
+            var marker_bf477a1c0f0f8cf5d4403fda78e1a124 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+        
+    
+            var icon_62498a5c165b9143e483501e0a4f133e = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8b7f2594fffb0c9a25f15ce104ae230b = L.popup({
+  "maxWidth": 260,
+});
+
+        
+            
+                var html_cdf251a993d5b25312756ca9f3def24b = $(`<div id="html_cdf251a993d5b25312756ca9f3def24b" style="width: 100.0%; height: 100.0%;"><b>Depot</b><br>Điểm dịch vụ SPX Hà Nội - Đống Đa 5</div>`)[0];
+                popup_8b7f2594fffb0c9a25f15ce104ae230b.setContent(html_cdf251a993d5b25312756ca9f3def24b);
+            
+        
+
+        marker_bf477a1c0f0f8cf5d4403fda78e1a124.bindPopup(popup_8b7f2594fffb0c9a25f15ce104ae230b)
+        ;
+
+        
+    
+    
+            marker_bf477a1c0f0f8cf5d4403fda78e1a124.bindTooltip(
+                `<div>
+                     Depot
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_bf477a1c0f0f8cf5d4403fda78e1a124.setIcon(icon_62498a5c165b9143e483501e0a4f133e);
+            
+    
+            var marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86 = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_114fd6f0f733ac10cd755ee277e9a155 = L.circleMarker(
+                [20.998750123198437, 105.82334696380568],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_54fc4e7eac54c165b2592ad933075f31 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_ae05e5dc2543da8090f9adeca8da385d = $(`<div id="html_ae05e5dc2543da8090f9adeca8da385d" style="width: 100.0%; height: 100.0%;"><b>Customer #1</b><br/>Nguyễn Văn An<br/>lat: 20.998750, lon: 105.823347</div>`)[0];
+                popup_54fc4e7eac54c165b2592ad933075f31.setContent(html_ae05e5dc2543da8090f9adeca8da385d);
+            
+        
+
+        circle_marker_114fd6f0f733ac10cd755ee277e9a155.bindPopup(popup_54fc4e7eac54c165b2592ad933075f31)
+        ;
+
+        
+    
+    
+            circle_marker_114fd6f0f733ac10cd755ee277e9a155.bindTooltip(
+                `<div>
+                     Customer #1: Nguyễn Văn An
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_44cc14e4451fae27cbb6f124d922a7bb = L.circleMarker(
+                [21.015768556249316, 105.81405109148103],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_e96e660134ebd2715ed78ec4755c6d60 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_5ed08abc13c750b5cb5a678f002c375a = $(`<div id="html_5ed08abc13c750b5cb5a678f002c375a" style="width: 100.0%; height: 100.0%;"><b>Customer #2</b><br/>Đinh Thị Nga<br/>lat: 21.015769, lon: 105.814051</div>`)[0];
+                popup_e96e660134ebd2715ed78ec4755c6d60.setContent(html_5ed08abc13c750b5cb5a678f002c375a);
+            
+        
+
+        circle_marker_44cc14e4451fae27cbb6f124d922a7bb.bindPopup(popup_e96e660134ebd2715ed78ec4755c6d60)
+        ;
+
+        
+    
+    
+            circle_marker_44cc14e4451fae27cbb6f124d922a7bb.bindTooltip(
+                `<div>
+                     Customer #2: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_7527e40b15a488b1793ff6bb87b09642 = L.circleMarker(
+                [21.001191755444164, 105.804766246838],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_2e6903e62350da526db0cb2ac42f8bca = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_fd17f4b6f9d93d282f7820f06580d7c8 = $(`<div id="html_fd17f4b6f9d93d282f7820f06580d7c8" style="width: 100.0%; height: 100.0%;"><b>Customer #3</b><br/>Lý Thị Tâm<br/>lat: 21.001192, lon: 105.804766</div>`)[0];
+                popup_2e6903e62350da526db0cb2ac42f8bca.setContent(html_fd17f4b6f9d93d282f7820f06580d7c8);
+            
+        
+
+        circle_marker_7527e40b15a488b1793ff6bb87b09642.bindPopup(popup_2e6903e62350da526db0cb2ac42f8bca)
+        ;
+
+        
+    
+    
+            circle_marker_7527e40b15a488b1793ff6bb87b09642.bindTooltip(
+                `<div>
+                     Customer #3: Lý Thị Tâm
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_580dda4d9f999e57bb7e98161696d95c = L.circleMarker(
+                [21.00197717655625, 105.82469930798256],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_1aed583865e4dc6d69b5deaa3a9003de = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_0f46a84b88cfd9fc86667aeba2d5ba30 = $(`<div id="html_0f46a84b88cfd9fc86667aeba2d5ba30" style="width: 100.0%; height: 100.0%;"><b>Customer #4</b><br/>Phan Văn Út<br/>lat: 21.001977, lon: 105.824699</div>`)[0];
+                popup_1aed583865e4dc6d69b5deaa3a9003de.setContent(html_0f46a84b88cfd9fc86667aeba2d5ba30);
+            
+        
+
+        circle_marker_580dda4d9f999e57bb7e98161696d95c.bindPopup(popup_1aed583865e4dc6d69b5deaa3a9003de)
+        ;
+
+        
+    
+    
+            circle_marker_580dda4d9f999e57bb7e98161696d95c.bindTooltip(
+                `<div>
+                     Customer #4: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_aff0be3c5801876ec8dcf222b4dd7104 = L.circleMarker(
+                [21.02136565045803, 105.8053672914407],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_22a17aa72d6b8b12a5d06079a78e7261 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_c4999691724e478facaa060febb1c95e = $(`<div id="html_c4999691724e478facaa060febb1c95e" style="width: 100.0%; height: 100.0%;"><b>Customer #5</b><br/>Tạ Văn Phong<br/>lat: 21.021366, lon: 105.805367</div>`)[0];
+                popup_22a17aa72d6b8b12a5d06079a78e7261.setContent(html_c4999691724e478facaa060febb1c95e);
+            
+        
+
+        circle_marker_aff0be3c5801876ec8dcf222b4dd7104.bindPopup(popup_22a17aa72d6b8b12a5d06079a78e7261)
+        ;
+
+        
+    
+    
+            circle_marker_aff0be3c5801876ec8dcf222b4dd7104.bindTooltip(
+                `<div>
+                     Customer #5: Tạ Văn Phong
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_56eace043da781389b93989833a67404 = L.circleMarker(
+                [21.01702243123076, 105.81963260766788],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_48f00886455d42fa7e19ab3d9c0e18c8 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_43c394de00314a5cbdcca78ddbbab3b7 = $(`<div id="html_43c394de00314a5cbdcca78ddbbab3b7" style="width: 100.0%; height: 100.0%;"><b>Customer #6</b><br/>Đinh Thị Nga<br/>lat: 21.017022, lon: 105.819633</div>`)[0];
+                popup_48f00886455d42fa7e19ab3d9c0e18c8.setContent(html_43c394de00314a5cbdcca78ddbbab3b7);
+            
+        
+
+        circle_marker_56eace043da781389b93989833a67404.bindPopup(popup_48f00886455d42fa7e19ab3d9c0e18c8)
+        ;
+
+        
+    
+    
+            circle_marker_56eace043da781389b93989833a67404.bindTooltip(
+                `<div>
+                     Customer #6: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_43895a0e63278fa6d155719e75a8c8fb = L.circleMarker(
+                [21.00173474798337, 105.80450327315404],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 1}
+            ).addTo(marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86);
+        
+    
+        var popup_fc6e4a80226091f29921433a2c3a3377 = L.popup({
+  "maxWidth": 280,
+});
+
+        
+            
+                var html_da6a1309236db3213f6eab0a9c1b8879 = $(`<div id="html_da6a1309236db3213f6eab0a9c1b8879" style="width: 100.0%; height: 100.0%;"><b>Customer #7</b><br/>Phan Văn Út<br/>lat: 21.001735, lon: 105.804503</div>`)[0];
+                popup_fc6e4a80226091f29921433a2c3a3377.setContent(html_da6a1309236db3213f6eab0a9c1b8879);
+            
+        
+
+        circle_marker_43895a0e63278fa6d155719e75a8c8fb.bindPopup(popup_fc6e4a80226091f29921433a2c3a3377)
+        ;
+
+        
+    
+    
+            circle_marker_43895a0e63278fa6d155719e75a8c8fb.bindTooltip(
+                `<div>
+                     Customer #7: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86.addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+        
+    
+            var feature_group_5f0a99bc93def125cdb1d5b828e540db = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_a6284e93d46932c52051652729ae2ebb = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010858, 105.811158], [21.010945, 105.81122], [21.01112, 105.81134], [21.011248, 105.811427], [21.01141, 105.811552], [21.011998, 105.811995], [21.012291, 105.812223], [21.012456, 105.81232], [21.012997, 105.812668], [21.013061, 105.812709], [21.013166, 105.812778], [21.01374, 105.813156], [21.013785, 105.813186], [21.014722, 105.813809], [21.01493, 105.81394], [21.015171, 105.814091], [21.015271, 105.814155], [21.015404, 105.81426], [21.015783, 105.81451], [21.016023, 105.814672], [21.016279, 105.814852], [21.016371, 105.81468], [21.01588, 105.814355], [21.015674, 105.814226]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_5f0a99bc93def125cdb1d5b828e540db);
+        
+    
+            ant_path_a6284e93d46932c52051652729ae2ebb.bindTooltip(
+                `<div>
+                     Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga • 1.56 km • 2.0 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_ca6c9689343d81e636cbd2d5a72d41f4 = L.polyline.antPath(
+              [[21.015674, 105.814226], [21.015486, 105.814109], [21.015475, 105.814103], [21.015329, 105.814023], [21.014829, 105.813691], [21.014865, 105.813633], [21.014868, 105.813631], [21.015114, 105.813258], [21.015226, 105.81309], [21.015287, 105.812993], [21.015457, 105.812725], [21.015501, 105.812656], [21.015564, 105.812577], [21.015593, 105.81254], [21.015653, 105.812435], [21.015691, 105.812357], [21.015783, 105.812113], [21.015832, 105.811987], [21.015841, 105.811971], [21.015932, 105.811804], [21.015942, 105.811786], [21.016125, 105.811457], [21.016191, 105.811338], [21.016277, 105.811192], [21.016436, 105.810923], [21.01644, 105.810917], [21.016521, 105.81081], [21.016596, 105.810909], [21.016828, 105.811039], [21.01722, 105.811261], [21.017424, 105.811369], [21.017658, 105.811503], [21.017755, 105.811559], [21.017951, 105.811675], [21.01803, 105.811722], [21.018087, 105.811759], [21.018146, 105.811796], [21.01816, 105.811719], [21.018192, 105.811655], [21.018322, 105.811366], [21.018336, 105.811333], [21.018351, 105.811304], [21.018632, 105.810718], [21.018707, 105.810569], [21.018737, 105.810507], [21.019012, 105.809935], [21.019208, 105.809525], [21.019245, 105.809454], [21.019285, 105.809377], [21.019476, 105.808984], [21.019507, 105.808915], [21.019536, 105.808849], [21.019594, 105.808721], [21.019602, 105.808703], [21.019648, 105.808676], [21.01969, 105.808642], [21.019813, 105.80842], [21.019824, 105.808387], [21.019832, 105.80831], [21.019917, 105.808141], [21.019964, 105.808051], [21.020056, 105.807875], [21.020088, 105.807811], [21.020197, 105.807592], [21.02036, 105.807293], [21.020455, 105.807159], [21.020703, 105.806812], [21.020728, 105.806768], [21.020771, 105.806694], [21.020809, 105.806612], [21.020819, 105.80659], [21.020866, 105.806469], [21.020896, 105.806377], [21.020934, 105.806234], [21.020951, 105.806151], [21.020963, 105.806065], [21.020975, 105.805926], [21.02099, 105.805781], [21.020995, 105.805708], [21.021006, 105.80563], [21.021014, 105.805584], [21.021045, 105.805406], [21.021063, 105.805306]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_5f0a99bc93def125cdb1d5b828e540db);
+        
+    
+            ant_path_ca6c9689343d81e636cbd2d5a72d41f4.bindTooltip(
+                `<div>
+                     Đinh Thị Nga → Tạ Văn Phong • 1.43 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_f4fda343236121a833379b7c155bee4c = L.polyline.antPath(
+              [[21.021063, 105.805306], [21.021045, 105.805406], [21.021014, 105.805584], [21.021006, 105.80563], [21.020995, 105.805708], [21.02099, 105.805781], [21.020975, 105.805926], [21.020963, 105.806065], [21.020951, 105.806151], [21.020934, 105.806234], [21.020896, 105.806377], [21.020866, 105.806469], [21.020819, 105.80659], [21.020809, 105.806612], [21.020771, 105.806694], [21.020728, 105.806768], [21.020703, 105.806812], [21.020455, 105.807159], [21.02036, 105.807293], [21.020197, 105.807592], [21.020088, 105.807811], [21.020056, 105.807875], [21.019822, 105.807933], [21.019641, 105.807978], [21.019369, 105.807818], [21.018721, 105.807442], [21.018591, 105.807366], [21.018168, 105.807132], [21.018068, 105.807073], [21.017788, 105.80691], [21.017592, 105.806804], [21.017428, 105.806711], [21.017269, 105.806616], [21.017175, 105.806513], [21.017105, 105.806457], [21.017031, 105.806395], [21.016893, 105.806258], [21.016772, 105.806135], [21.016643, 105.805998], [21.016506, 105.805858], [21.016341, 105.805678], [21.016058, 105.805393], [21.015989, 105.805309], [21.015899, 105.805208], [21.015749, 105.80504], [21.015658, 105.804938], [21.015555, 105.804825], [21.01536, 105.805034], [21.015297, 105.805096], [21.014752, 105.805642], [21.014271, 105.806159], [21.013995, 105.806479], [21.01386, 105.806639], [21.01373, 105.806798], [21.013385, 105.807296], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_5f0a99bc93def125cdb1d5b828e540db);
+        
+    
+            ant_path_f4fda343236121a833379b7c155bee4c.bindTooltip(
+                `<div>
+                     Tạ Văn Phong → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.82 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2487a8b696f9190b3ac6dcde98bb4033 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_5f0a99bc93def125cdb1d5b828e540db);
+        
+    
+            var beautify_icon_f24a10c3b3cb44b1b1b2a8b81378202a = new L.BeautifyIcon.icon(
+                {
+  "icon": "route",
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "#FFF",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 0,
+}
+            )
+            marker_2487a8b696f9190b3ac6dcde98bb4033.setIcon(beautify_icon_f24a10c3b3cb44b1b1b2a8b81378202a);
+        
+    
+        var popup_7986c3ab76e28af8bb33e8f4963c455c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a11b0edf66929367bf9a5b5a0f79048c = $(`<div id="html_a11b0edf66929367bf9a5b5a0f79048c" style="width: 100.0%; height: 100.0%;"><b>Route #0</b><br/>Tổng chiều dài ~4.81 km</div>`)[0];
+                popup_7986c3ab76e28af8bb33e8f4963c455c.setContent(html_a11b0edf66929367bf9a5b5a0f79048c);
+            
+        
+
+        marker_2487a8b696f9190b3ac6dcde98bb4033.bindPopup(popup_7986c3ab76e28af8bb33e8f4963c455c)
+        ;
+
+        
+    
+    
+            marker_2487a8b696f9190b3ac6dcde98bb4033.bindTooltip(
+                `<div>
+                     Route #0 • ~4.81 km
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2487a8b696f9190b3ac6dcde98bb4033.setIcon(beautify_icon_f24a10c3b3cb44b1b1b2a8b81378202a);
+            
+    
+            var feature_group_6b8defb2174079332e96f22b262a27f1 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_a96291d6ec1536a79c337a9090430819 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.010799, 105.810863], [21.010746, 105.810823], [21.010409, 105.810563], [21.010376, 105.810539], [21.010321, 105.810501], [21.010259, 105.810456], [21.009982, 105.810258], [21.00938, 105.809829], [21.009129, 105.80965], [21.008819, 105.809397], [21.008737, 105.809326], [21.008438, 105.809038], [21.008085, 105.808514], [21.007975, 105.80836], [21.007731, 105.80799], [21.007088, 105.807069], [21.006905, 105.806798], [21.00684, 105.8067], [21.00674, 105.806559], [21.006419, 105.806101], [21.005762, 105.805142], [21.005497, 105.804759], [21.005435, 105.804663], [21.005355, 105.804556], [21.005218, 105.804701], [21.005125, 105.8048], [21.005083, 105.804845], [21.004825, 105.80524], [21.004731, 105.8054], [21.004507, 105.80578], [21.004236, 105.806241], [21.003785, 105.806989], [21.003622, 105.807001], [21.003451, 105.807012], [21.002735, 105.806002], [21.002638, 105.805881], [21.002581, 105.805805], [21.00246, 105.805617], [21.002198, 105.805254], [21.001913, 105.804839], [21.001889, 105.804805], [21.001807, 105.804686], [21.0017, 105.80453]],
+              {
+  "stroke": true,
+  "color": "#ff7f0e",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#ff7f0e",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_6b8defb2174079332e96f22b262a27f1);
+        
+    
+            ant_path_a96291d6ec1536a79c337a9090430819.bindTooltip(
+                `<div>
+                     Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Phan Văn Út • 2.27 km • 2.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_0b77edfef94844f3c0685ee62cd20a2c = L.polyline.antPath(
+              [[21.0017, 105.80453], [21.001807, 105.804686], [21.001889, 105.804805], [21.001913, 105.804839], [21.002198, 105.805254], [21.00246, 105.805617], [21.002581, 105.805805], [21.002638, 105.805881], [21.002735, 105.806002], [21.003451, 105.807012], [21.003622, 105.807001], [21.003785, 105.806989], [21.00392, 105.806962], [21.004301, 105.806318], [21.004643, 105.80576], [21.00492, 105.805309], [21.005206, 105.804908], [21.005295, 105.804818], [21.005345, 105.804892], [21.006057, 105.805888], [21.006714, 105.806824], [21.006821, 105.80698], [21.007293, 105.807668], [21.007367, 105.807775], [21.007658, 105.808175], [21.007905, 105.808524], [21.00803, 105.808682], [21.008398, 105.809156], [21.008529, 105.809309], [21.008657, 105.809437], [21.008943, 105.809727], [21.009218, 105.809953], [21.009249, 105.809978], [21.009813, 105.810381], [21.009845, 105.810404], [21.009876, 105.810426], [21.010155, 105.810634], [21.010215, 105.810677], [21.010268, 105.810715], [21.010295, 105.810735], [21.010635, 105.810989], [21.010689, 105.81103], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#ff7f0e",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#ff7f0e",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_6b8defb2174079332e96f22b262a27f1);
+        
+    
+            ant_path_0b77edfef94844f3c0685ee62cd20a2c.bindTooltip(
+                `<div>
+                     Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.61 km • 2.0 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9a8277238ec6e411dda6ca855cdcac26 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_6b8defb2174079332e96f22b262a27f1);
+        
+    
+            var beautify_icon_e97963d29f9c8f485f236cdd7834fa18 = new L.BeautifyIcon.icon(
+                {
+  "icon": "route",
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "#ff7f0e",
+  "textColor": "#ff7f0e",
+  "backgroundColor": "#FFF",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 1,
+}
+            )
+            marker_9a8277238ec6e411dda6ca855cdcac26.setIcon(beautify_icon_e97963d29f9c8f485f236cdd7834fa18);
+        
+    
+        var popup_476fc2a32d4326eebfa9b7453926908b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0f0706296107ff7f8a4824b5b6a550e5 = $(`<div id="html_0f0706296107ff7f8a4824b5b6a550e5" style="width: 100.0%; height: 100.0%;"><b>Route #1</b><br/>Tổng chiều dài ~3.89 km</div>`)[0];
+                popup_476fc2a32d4326eebfa9b7453926908b.setContent(html_0f0706296107ff7f8a4824b5b6a550e5);
+            
+        
+
+        marker_9a8277238ec6e411dda6ca855cdcac26.bindPopup(popup_476fc2a32d4326eebfa9b7453926908b)
+        ;
+
+        
+    
+    
+            marker_9a8277238ec6e411dda6ca855cdcac26.bindTooltip(
+                `<div>
+                     Route #1 • ~3.89 km
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9a8277238ec6e411dda6ca855cdcac26.setIcon(beautify_icon_e97963d29f9c8f485f236cdd7834fa18);
+            
+    
+            var feature_group_84fcb1700ae7e63ae3f917bccad8d321 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_0bcdd1ec9ce97579b99ffb5b08955d73 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010699, 105.811135], [21.010149, 105.812019], [21.009515, 105.81308], [21.009105, 105.813759], [21.009067, 105.813823], [21.008782, 105.814249], [21.008755, 105.814282], [21.008639, 105.814407], [21.008725, 105.814491], [21.008818, 105.814578], [21.008974, 105.814724], [21.009067, 105.81481], [21.009415, 105.815111], [21.009581, 105.815295], [21.009691, 105.815417], [21.009898, 105.815631], [21.010097, 105.815792], [21.010392, 105.816026], [21.010447, 105.816071], [21.010698, 105.816261], [21.011238, 105.816711], [21.011658, 105.817033], [21.011849, 105.817187], [21.011934, 105.817251], [21.012036, 105.817333], [21.012314, 105.817571], [21.012431, 105.817672], [21.012623, 105.817837], [21.012994, 105.81817], [21.013042, 105.818214], [21.013394, 105.818544], [21.013689, 105.818816], [21.013778, 105.818889], [21.013853, 105.818958], [21.014096, 105.819164], [21.014937, 105.819929], [21.015009, 105.82], [21.015125, 105.820127], [21.015191, 105.820203], [21.015239, 105.820258], [21.015375, 105.8201], [21.015428, 105.820061], [21.015955, 105.819667], [21.016032, 105.819624], [21.01655, 105.819248], [21.016663, 105.819151]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_84fcb1700ae7e63ae3f917bccad8d321);
+        
+    
+            ant_path_0bcdd1ec9ce97579b99ffb5b08955d73.bindTooltip(
+                `<div>
+                     Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga • 2.28 km • 2.9 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_94f3157bccb0812c7966f63df9a65bd2 = L.polyline.antPath(
+              [[21.016663, 105.819151], [21.01655, 105.819248], [21.016032, 105.819624], [21.015955, 105.819667], [21.015428, 105.820061], [21.015375, 105.8201], [21.015325, 105.820052], [21.014298, 105.819084], [21.014059, 105.818869], [21.013978, 105.818796], [21.013902, 105.818728], [21.013815, 105.818648], [21.013386, 105.81826], [21.013158, 105.818051], [21.013116, 105.818014], [21.012859, 105.817792], [21.012794, 105.817733], [21.012609, 105.817572], [21.012355, 105.817372], [21.012159, 105.817213], [21.012083, 105.817155], [21.012005, 105.817092], [21.011481, 105.816677], [21.011133, 105.816408], [21.01082, 105.81616], [21.010642, 105.816019], [21.010544, 105.815938], [21.010488, 105.815892], [21.010238, 105.815693], [21.01009, 105.815579], [21.009957, 105.815465], [21.009678, 105.815188], [21.00941, 105.814911], [21.009195, 105.814673], [21.009022, 105.814511], [21.008928, 105.814431], [21.008864, 105.814374], [21.008755, 105.814282], [21.008639, 105.814407], [21.0084, 105.814609], [21.008101, 105.814873], [21.007642, 105.815262], [21.007355, 105.815488], [21.006664, 105.815987], [21.006189, 105.816321], [21.005777, 105.816595], [21.005575, 105.816732], [21.005215, 105.816954], [21.0048, 105.81729], [21.004707, 105.817381], [21.004549, 105.817589], [21.004522, 105.817627], [21.004322, 105.817901], [21.004266, 105.817961], [21.004228, 105.818001], [21.003956, 105.818257], [21.003749, 105.818492], [21.003735, 105.818508], [21.003663, 105.818589], [21.003645, 105.818612], [21.003605, 105.818664], [21.003488, 105.818829], [21.003474, 105.818854], [21.003377, 105.819029], [21.003277, 105.819256], [21.003216, 105.819509], [21.003116, 105.81987], [21.003093, 105.819968], [21.002975, 105.820386], [21.002855, 105.820816], [21.002805, 105.821005], [21.002794, 105.821045], [21.002678, 105.821456], [21.002622, 105.821649], [21.002598, 105.821734], [21.002578, 105.821797], [21.002546, 105.822022], [21.002463, 105.822367], [21.001568, 105.825913], [21.001429, 105.826217], [21.001226, 105.826979], [21.001211, 105.827035], [21.001461, 105.827119], [21.001476, 105.827062], [21.001616, 105.826512], [21.001688, 105.826279], [21.001663, 105.82599], [21.001988, 105.824702]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_84fcb1700ae7e63ae3f917bccad8d321);
+        
+    
+            ant_path_94f3157bccb0812c7966f63df9a65bd2.bindTooltip(
+                `<div>
+                     Đinh Thị Nga → Phan Văn Út • 3.06 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_be600e6fe36f6c50c4704f9302375dc9 = L.polyline.antPath(
+              [[21.001988, 105.824702], [21.002658, 105.822048], [21.00276, 105.821931], [21.002864, 105.821561], [21.002942, 105.821278], [21.00295, 105.821248], [21.003037, 105.820932], [21.003147, 105.820734], [21.003205, 105.820642], [21.003255, 105.820539], [21.003299, 105.820368], [21.00331, 105.820246], [21.003311, 105.820134], [21.003295, 105.819962], [21.003299, 105.819841], [21.003419, 105.819397], [21.003464, 105.819284], [21.003518, 105.819167], [21.003579, 105.819047], [21.003639, 105.818946], [21.003695, 105.818866], [21.003803, 105.818715], [21.004428, 105.818031], [21.004751, 105.817505], [21.004789, 105.817453], [21.004834, 105.817406], [21.004898, 105.817353], [21.00516, 105.817165], [21.005204, 105.817136], [21.005538, 105.816899], [21.005753, 105.816747], [21.006075, 105.816542], [21.006247, 105.816424], [21.006561, 105.816212], [21.007304, 105.815667], [21.007465, 105.815554], [21.007672, 105.8154], [21.007722, 105.815362], [21.007768, 105.815323], [21.007825, 105.815274], [21.008167, 105.814973], [21.008362, 105.814784], [21.008651, 105.814552], [21.008725, 105.814491], [21.008864, 105.814374], [21.008944, 105.814266], [21.009208, 105.813855], [21.009352, 105.813621], [21.009375, 105.813579], [21.009401, 105.813532], [21.00962, 105.813155], [21.009774, 105.812895], [21.009922, 105.812662], [21.010128, 105.812329], [21.010327, 105.812013], [21.010425, 105.811855], [21.010645, 105.811496], [21.010745, 105.811336], [21.01082, 105.81122], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_84fcb1700ae7e63ae3f917bccad8d321);
+        
+    
+            ant_path_be600e6fe36f6c50c4704f9302375dc9.bindTooltip(
+                `<div>
+                     Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.85 km • 1.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_84a0f0de2645cbfde778f874df26f263 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_84fcb1700ae7e63ae3f917bccad8d321);
+        
+    
+            var beautify_icon_dd028b97d549ea4ec9473de9418c4463 = new L.BeautifyIcon.icon(
+                {
+  "icon": "route",
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "#FFF",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 2,
+}
+            )
+            marker_84a0f0de2645cbfde778f874df26f263.setIcon(beautify_icon_dd028b97d549ea4ec9473de9418c4463);
+        
+    
+        var popup_2ac84fc504a75711cd25cad78bb781bf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e51f62a7269fea1bd094a18ddcefb1c3 = $(`<div id="html_e51f62a7269fea1bd094a18ddcefb1c3" style="width: 100.0%; height: 100.0%;"><b>Route #2</b><br/>Tổng chiều dài ~7.19 km</div>`)[0];
+                popup_2ac84fc504a75711cd25cad78bb781bf.setContent(html_e51f62a7269fea1bd094a18ddcefb1c3);
+            
+        
+
+        marker_84a0f0de2645cbfde778f874df26f263.bindPopup(popup_2ac84fc504a75711cd25cad78bb781bf)
+        ;
+
+        
+    
+    
+            marker_84a0f0de2645cbfde778f874df26f263.bindTooltip(
+                `<div>
+                     Route #2 • ~7.19 km
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_84a0f0de2645cbfde778f874df26f263.setIcon(beautify_icon_dd028b97d549ea4ec9473de9418c4463);
+            
+    
+            var feature_group_bd6aa4a67e98d5c807fc37d24a7106bc = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_8562fd9c10380234692b0f8c043af359 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.010799, 105.810863], [21.010746, 105.810823], [21.010409, 105.810563], [21.010376, 105.810539], [21.010321, 105.810501], [21.010259, 105.810456], [21.009982, 105.810258], [21.00938, 105.809829], [21.009129, 105.80965], [21.008819, 105.809397], [21.008737, 105.809326], [21.008438, 105.809038], [21.008085, 105.808514], [21.007975, 105.80836], [21.007731, 105.80799], [21.007088, 105.807069], [21.006905, 105.806798], [21.00684, 105.8067], [21.00674, 105.806559], [21.006419, 105.806101], [21.005762, 105.805142], [21.005497, 105.804759], [21.005435, 105.804663], [21.005355, 105.804556], [21.005218, 105.804701], [21.005125, 105.8048], [21.005083, 105.804845], [21.004825, 105.80524], [21.004731, 105.8054], [21.004507, 105.80578], [21.004236, 105.806241], [21.003785, 105.806989], [21.003622, 105.807001], [21.003451, 105.807012], [21.002735, 105.806002], [21.002638, 105.805881], [21.002581, 105.805805], [21.00246, 105.805617], [21.002198, 105.805254], [21.001913, 105.804839], [21.001889, 105.804805], [21.001807, 105.804686], [21.001681, 105.804502], [21.001627, 105.804423]],
+              {
+  "stroke": true,
+  "color": "#d62728",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#d62728",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_bd6aa4a67e98d5c807fc37d24a7106bc);
+        
+    
+            ant_path_8562fd9c10380234692b0f8c043af359.bindTooltip(
+                `<div>
+                     Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Lý Thị Tâm • 2.29 km • 2.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_4855d0f7c2446dbab72c1d9052fb680b = L.polyline.antPath(
+              [[21.001627, 105.804423], [21.001681, 105.804502], [21.001807, 105.804686], [21.001889, 105.804805], [21.001913, 105.804839], [21.002198, 105.805254], [21.00246, 105.805617], [21.002581, 105.805805], [21.002638, 105.805881], [21.002735, 105.806002], [21.003451, 105.807012], [21.003622, 105.807001], [21.003785, 105.806989], [21.00392, 105.806962], [21.004301, 105.806318], [21.004643, 105.80576], [21.00492, 105.805309], [21.005206, 105.804908], [21.005295, 105.804818], [21.005345, 105.804892], [21.006057, 105.805888], [21.006714, 105.806824], [21.006821, 105.80698], [21.007293, 105.807668], [21.007367, 105.807775], [21.007658, 105.808175], [21.007905, 105.808524], [21.00803, 105.808682], [21.008398, 105.809156], [21.008529, 105.809309], [21.008657, 105.809437], [21.008943, 105.809727], [21.009218, 105.809953], [21.009249, 105.809978], [21.009813, 105.810381], [21.009845, 105.810404], [21.009876, 105.810426], [21.010155, 105.810634], [21.010215, 105.810677], [21.010268, 105.810715], [21.010295, 105.810735], [21.010635, 105.810989], [21.010689, 105.81103], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#d62728",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#d62728",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_bd6aa4a67e98d5c807fc37d24a7106bc);
+        
+    
+            ant_path_4855d0f7c2446dbab72c1d9052fb680b.bindTooltip(
+                `<div>
+                     Lý Thị Tâm → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.63 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_a57935cfabaa172043f0ccad25c75cbc = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_bd6aa4a67e98d5c807fc37d24a7106bc);
+        
+    
+            var beautify_icon_c9756c98ffd979a4f325acf93b2ef919 = new L.BeautifyIcon.icon(
+                {
+  "icon": "route",
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "#d62728",
+  "textColor": "#d62728",
+  "backgroundColor": "#FFF",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 3,
+}
+            )
+            marker_a57935cfabaa172043f0ccad25c75cbc.setIcon(beautify_icon_c9756c98ffd979a4f325acf93b2ef919);
+        
+    
+        var popup_21e443ea7659fed01425dd0b2f8e4f8f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_52dbecdf9c64dce92d6275f26710d5e5 = $(`<div id="html_52dbecdf9c64dce92d6275f26710d5e5" style="width: 100.0%; height: 100.0%;"><b>Route #3</b><br/>Tổng chiều dài ~3.91 km</div>`)[0];
+                popup_21e443ea7659fed01425dd0b2f8e4f8f.setContent(html_52dbecdf9c64dce92d6275f26710d5e5);
+            
+        
+
+        marker_a57935cfabaa172043f0ccad25c75cbc.bindPopup(popup_21e443ea7659fed01425dd0b2f8e4f8f)
+        ;
+
+        
+    
+    
+            marker_a57935cfabaa172043f0ccad25c75cbc.bindTooltip(
+                `<div>
+                     Route #3 • ~3.91 km
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a57935cfabaa172043f0ccad25c75cbc.setIcon(beautify_icon_c9756c98ffd979a4f325acf93b2ef919);
+            
+    
+            var feature_group_b006a726b588740858cd99c75a274c30 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_dffa9021be19ff9e6cd2a4b7b1c61a67 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010699, 105.811135], [21.010149, 105.812019], [21.009515, 105.81308], [21.009105, 105.813759], [21.009067, 105.813823], [21.008782, 105.814249], [21.008755, 105.814282], [21.008639, 105.814407], [21.0084, 105.814609], [21.008101, 105.814873], [21.007642, 105.815262], [21.007355, 105.815488], [21.006664, 105.815987], [21.006189, 105.816321], [21.005777, 105.816595], [21.005575, 105.816732], [21.005215, 105.816954], [21.0048, 105.81729], [21.004707, 105.817381], [21.004549, 105.817589], [21.004522, 105.817627], [21.004322, 105.817901], [21.004266, 105.817961], [21.004228, 105.818001], [21.003956, 105.818257], [21.003749, 105.818492], [21.003735, 105.818508], [21.003663, 105.818589], [21.003645, 105.818612], [21.003605, 105.818664], [21.003488, 105.818829], [21.003474, 105.818854], [21.003377, 105.819029], [21.003277, 105.819256], [21.003216, 105.819509], [21.003116, 105.81987], [21.003093, 105.819968], [21.002975, 105.820386], [21.002855, 105.820816], [21.002805, 105.821005], [21.002794, 105.821045], [21.002678, 105.821456], [21.002622, 105.821649], [21.002598, 105.821734], [21.002578, 105.821797], [21.002471, 105.821943], [21.002367, 105.822312], [21.002254, 105.822761], [21.002119, 105.823292], [21.00189, 105.824153], [21.001851, 105.824141], [21.000966, 105.823917], [21.000896, 105.82389], [21.000598, 105.82376], [21.00037, 105.823653], [21.000059, 105.823514], [20.999962, 105.823462], [20.99991, 105.823433], [20.9998, 105.823396], [20.999626, 105.823352], [20.9993, 105.823392], [20.999171, 105.823384], [20.999084, 105.823336], [20.998981, 105.823278], [20.998761, 105.823238], [20.998746, 105.823239]],
+              {
+  "stroke": true,
+  "color": "#9467bd",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#9467bd",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_b006a726b588740858cd99c75a274c30);
+        
+    
+            ant_path_dffa9021be19ff9e6cd2a4b7b1c61a67.bindTooltip(
+                `<div>
+                     Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Nguyễn Văn An • 2.82 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            ant_path_a384ed433c4b3b3246aabb70001842f9 = L.polyline.antPath(
+              [[20.998746, 105.823239], [20.998761, 105.823238], [20.998981, 105.823278], [20.999084, 105.823336], [20.999171, 105.823384], [20.9993, 105.823392], [20.999626, 105.823352], [20.9998, 105.823396], [20.99991, 105.823433], [20.999962, 105.823462], [21.000059, 105.823514], [21.00037, 105.823653], [21.000598, 105.82376], [21.000896, 105.82389], [21.000966, 105.823917], [21.001851, 105.824141], [21.00189, 105.824153], [21.001639, 105.825172], [21.001536, 105.825569], [21.001431, 105.826016], [21.001429, 105.826217], [21.001226, 105.826979], [21.001211, 105.827035], [21.001461, 105.827119], [21.001476, 105.827062], [21.001616, 105.826512], [21.001688, 105.826279], [21.001717, 105.826184], [21.001763, 105.826056], [21.001826, 105.825834], [21.001987, 105.825201], [21.002148, 105.824564], [21.002306, 105.823974], [21.00248, 105.823302], [21.002633, 105.82269], [21.002724, 105.822265], [21.002753, 105.822084], [21.00276, 105.821931], [21.002864, 105.821561], [21.002942, 105.821278], [21.00295, 105.821248], [21.003037, 105.820932], [21.003147, 105.820734], [21.003205, 105.820642], [21.003255, 105.820539], [21.003299, 105.820368], [21.00331, 105.820246], [21.003311, 105.820134], [21.003295, 105.819962], [21.003299, 105.819841], [21.003419, 105.819397], [21.003464, 105.819284], [21.003518, 105.819167], [21.003579, 105.819047], [21.003639, 105.818946], [21.003695, 105.818866], [21.003803, 105.818715], [21.004428, 105.818031], [21.004751, 105.817505], [21.004789, 105.817453], [21.004834, 105.817406], [21.004898, 105.817353], [21.00516, 105.817165], [21.005204, 105.817136], [21.005538, 105.816899], [21.005753, 105.816747], [21.006075, 105.816542], [21.006247, 105.816424], [21.006561, 105.816212], [21.007304, 105.815667], [21.007465, 105.815554], [21.007672, 105.8154], [21.007722, 105.815362], [21.007768, 105.815323], [21.007825, 105.815274], [21.008167, 105.814973], [21.008362, 105.814784], [21.008651, 105.814552], [21.008725, 105.814491], [21.008864, 105.814374], [21.008944, 105.814266], [21.009208, 105.813855], [21.009352, 105.813621], [21.009375, 105.813579], [21.009401, 105.813532], [21.00962, 105.813155], [21.009774, 105.812895], [21.009922, 105.812662], [21.010128, 105.812329], [21.010327, 105.812013], [21.010425, 105.811855], [21.010645, 105.811496], [21.010745, 105.811336], [21.01082, 105.81122], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#9467bd",
+  "weight": 4,
+  "opacity": 0.85,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+10,
+20,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#9467bd",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 600,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_b006a726b588740858cd99c75a274c30);
+        
+    
+            ant_path_a384ed433c4b3b3246aabb70001842f9.bindTooltip(
+                `<div>
+                     Nguyễn Văn An → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 2.81 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_cab635bbc38d253cf23a31fb7af7536b = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_b006a726b588740858cd99c75a274c30);
+        
+    
+            var beautify_icon_b601b0a68046a27ec1b9719bd0786715 = new L.BeautifyIcon.icon(
+                {
+  "icon": "route",
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "#9467bd",
+  "textColor": "#9467bd",
+  "backgroundColor": "#FFF",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 4,
+}
+            )
+            marker_cab635bbc38d253cf23a31fb7af7536b.setIcon(beautify_icon_b601b0a68046a27ec1b9719bd0786715);
+        
+    
+        var popup_8cad44ba97ad0df4504b4864bba1ffc5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_407df3e32533df1069c5cd40018e7191 = $(`<div id="html_407df3e32533df1069c5cd40018e7191" style="width: 100.0%; height: 100.0%;"><b>Route #4</b><br/>Tổng chiều dài ~5.63 km</div>`)[0];
+                popup_8cad44ba97ad0df4504b4864bba1ffc5.setContent(html_407df3e32533df1069c5cd40018e7191);
+            
+        
+
+        marker_cab635bbc38d253cf23a31fb7af7536b.bindPopup(popup_8cad44ba97ad0df4504b4864bba1ffc5)
+        ;
+
+        
+    
+    
+            marker_cab635bbc38d253cf23a31fb7af7536b.bindTooltip(
+                `<div>
+                     Route #4 • ~5.63 km
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_cab635bbc38d253cf23a31fb7af7536b.setIcon(beautify_icon_b601b0a68046a27ec1b9719bd0786715);
+            
+    
+            var feature_group_46d8744b560c8ad6bf2cf897ecf78184 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_04dd5c4f94f445f099c73d695e90a609 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010858, 105.811158], [21.010945, 105.81122], [21.01112, 105.81134], [21.011248, 105.811427], [21.01141, 105.811552], [21.011998, 105.811995], [21.012291, 105.812223], [21.012456, 105.81232], [21.012997, 105.812668], [21.013061, 105.812709], [21.013166, 105.812778], [21.01374, 105.813156], [21.013785, 105.813186], [21.014722, 105.813809], [21.01493, 105.81394], [21.015171, 105.814091], [21.015271, 105.814155], [21.015404, 105.81426], [21.015783, 105.81451], [21.016023, 105.814672], [21.016279, 105.814852], [21.016371, 105.81468], [21.01588, 105.814355], [21.015674, 105.814226]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_46d8744b560c8ad6bf2cf897ecf78184);
+        
+    
+            ant_path_04dd5c4f94f445f099c73d695e90a609.bindTooltip(
+                `<div>
+                     Step 1 • v0 • Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga • 1.56 km • 2.0 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_cd5ce02e01419687f58d376d93a1ebe5 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_46d8744b560c8ad6bf2cf897ecf78184);
+        
+    
+            var beautify_icon_3725ddc31dd87dc601d529f88e9e5b2a = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 1,
+}
+            )
+            marker_cd5ce02e01419687f58d376d93a1ebe5.setIcon(beautify_icon_3725ddc31dd87dc601d529f88e9e5b2a);
+        
+    
+            marker_cd5ce02e01419687f58d376d93a1ebe5.bindTooltip(
+                `<div>
+                     from #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_cd5ce02e01419687f58d376d93a1ebe5.setIcon(beautify_icon_3725ddc31dd87dc601d529f88e9e5b2a);
+            
+    
+            var marker_995c3b5c15d0949c6ae71465eb6d5b69 = L.marker(
+                [21.015768556249316, 105.81405109148103],
+                {
+}
+            ).addTo(feature_group_46d8744b560c8ad6bf2cf897ecf78184);
+        
+    
+            var beautify_icon_f4456c851cf40cff6b4184ea2e660592 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_995c3b5c15d0949c6ae71465eb6d5b69.setIcon(beautify_icon_f4456c851cf40cff6b4184ea2e660592);
+        
+    
+            marker_995c3b5c15d0949c6ae71465eb6d5b69.bindTooltip(
+                `<div>
+                     to #2: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_995c3b5c15d0949c6ae71465eb6d5b69.setIcon(beautify_icon_f4456c851cf40cff6b4184ea2e660592);
+            
+    
+        var popup_08d242e026af60c87af5c1a73657136f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_0f95552fa053a3c673a5177031b27db2 = $(`<div id="html_0f95552fa053a3c673a5177031b27db2" style="width: 100.0%; height: 100.0%;"><b>Step 1</b><br/>Vehicle: v0<br/>Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga<br/>1.56 km • 2.0 min</div>`)[0];
+                popup_08d242e026af60c87af5c1a73657136f.setContent(html_0f95552fa053a3c673a5177031b27db2);
+            
+        
+
+        feature_group_46d8744b560c8ad6bf2cf897ecf78184.bindPopup(popup_08d242e026af60c87af5c1a73657136f)
+        ;
+
+        
+    
+    
+            feature_group_46d8744b560c8ad6bf2cf897ecf78184.addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+        
+    
+            var feature_group_d0b61511a1cc2cd4b5f618827f77ea95 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_890940430ae575ebc3d2da165c119f5b = L.polyline.antPath(
+              [[21.015674, 105.814226], [21.015486, 105.814109], [21.015475, 105.814103], [21.015329, 105.814023], [21.014829, 105.813691], [21.014865, 105.813633], [21.014868, 105.813631], [21.015114, 105.813258], [21.015226, 105.81309], [21.015287, 105.812993], [21.015457, 105.812725], [21.015501, 105.812656], [21.015564, 105.812577], [21.015593, 105.81254], [21.015653, 105.812435], [21.015691, 105.812357], [21.015783, 105.812113], [21.015832, 105.811987], [21.015841, 105.811971], [21.015932, 105.811804], [21.015942, 105.811786], [21.016125, 105.811457], [21.016191, 105.811338], [21.016277, 105.811192], [21.016436, 105.810923], [21.01644, 105.810917], [21.016521, 105.81081], [21.016596, 105.810909], [21.016828, 105.811039], [21.01722, 105.811261], [21.017424, 105.811369], [21.017658, 105.811503], [21.017755, 105.811559], [21.017951, 105.811675], [21.01803, 105.811722], [21.018087, 105.811759], [21.018146, 105.811796], [21.01816, 105.811719], [21.018192, 105.811655], [21.018322, 105.811366], [21.018336, 105.811333], [21.018351, 105.811304], [21.018632, 105.810718], [21.018707, 105.810569], [21.018737, 105.810507], [21.019012, 105.809935], [21.019208, 105.809525], [21.019245, 105.809454], [21.019285, 105.809377], [21.019476, 105.808984], [21.019507, 105.808915], [21.019536, 105.808849], [21.019594, 105.808721], [21.019602, 105.808703], [21.019648, 105.808676], [21.01969, 105.808642], [21.019813, 105.80842], [21.019824, 105.808387], [21.019832, 105.80831], [21.019917, 105.808141], [21.019964, 105.808051], [21.020056, 105.807875], [21.020088, 105.807811], [21.020197, 105.807592], [21.02036, 105.807293], [21.020455, 105.807159], [21.020703, 105.806812], [21.020728, 105.806768], [21.020771, 105.806694], [21.020809, 105.806612], [21.020819, 105.80659], [21.020866, 105.806469], [21.020896, 105.806377], [21.020934, 105.806234], [21.020951, 105.806151], [21.020963, 105.806065], [21.020975, 105.805926], [21.02099, 105.805781], [21.020995, 105.805708], [21.021006, 105.80563], [21.021014, 105.805584], [21.021045, 105.805406], [21.021063, 105.805306]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_d0b61511a1cc2cd4b5f618827f77ea95);
+        
+    
+            ant_path_890940430ae575ebc3d2da165c119f5b.bindTooltip(
+                `<div>
+                     Step 2 • v0 • Đinh Thị Nga → Tạ Văn Phong • 1.43 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9706d26ef4b3fad6992d5ddf8b292e2b = L.marker(
+                [21.015768556249316, 105.81405109148103],
+                {
+}
+            ).addTo(feature_group_d0b61511a1cc2cd4b5f618827f77ea95);
+        
+    
+            var beautify_icon_1bd73e207d006dbfc2b0e0468fe9e477 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 2,
+}
+            )
+            marker_9706d26ef4b3fad6992d5ddf8b292e2b.setIcon(beautify_icon_1bd73e207d006dbfc2b0e0468fe9e477);
+        
+    
+            marker_9706d26ef4b3fad6992d5ddf8b292e2b.bindTooltip(
+                `<div>
+                     from #2: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9706d26ef4b3fad6992d5ddf8b292e2b.setIcon(beautify_icon_1bd73e207d006dbfc2b0e0468fe9e477);
+            
+    
+            var marker_6b37f03965605311f742d30534cead7f = L.marker(
+                [21.02136565045803, 105.8053672914407],
+                {
+}
+            ).addTo(feature_group_d0b61511a1cc2cd4b5f618827f77ea95);
+        
+    
+            var beautify_icon_1f54157a2b1dcf6b10d67a286fe3d08c = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_6b37f03965605311f742d30534cead7f.setIcon(beautify_icon_1f54157a2b1dcf6b10d67a286fe3d08c);
+        
+    
+            marker_6b37f03965605311f742d30534cead7f.bindTooltip(
+                `<div>
+                     to #5: Tạ Văn Phong
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6b37f03965605311f742d30534cead7f.setIcon(beautify_icon_1f54157a2b1dcf6b10d67a286fe3d08c);
+            
+    
+        var popup_90c4fb068dba830fbeb76390d00f4c08 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_408acb7c0fb8db1a3c321d7e7c617cbe = $(`<div id="html_408acb7c0fb8db1a3c321d7e7c617cbe" style="width: 100.0%; height: 100.0%;"><b>Step 2</b><br/>Vehicle: v0<br/>Đinh Thị Nga → Tạ Văn Phong<br/>1.43 km • 2.1 min</div>`)[0];
+                popup_90c4fb068dba830fbeb76390d00f4c08.setContent(html_408acb7c0fb8db1a3c321d7e7c617cbe);
+            
+        
+
+        feature_group_d0b61511a1cc2cd4b5f618827f77ea95.bindPopup(popup_90c4fb068dba830fbeb76390d00f4c08)
+        ;
+
+        
+    
+    
+            var feature_group_f0cec44823830583bfbc6852cd0a662b = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_f8857064c4f6f42f83d2c95c9bb58a97 = L.polyline.antPath(
+              [[21.021063, 105.805306], [21.021045, 105.805406], [21.021014, 105.805584], [21.021006, 105.80563], [21.020995, 105.805708], [21.02099, 105.805781], [21.020975, 105.805926], [21.020963, 105.806065], [21.020951, 105.806151], [21.020934, 105.806234], [21.020896, 105.806377], [21.020866, 105.806469], [21.020819, 105.80659], [21.020809, 105.806612], [21.020771, 105.806694], [21.020728, 105.806768], [21.020703, 105.806812], [21.020455, 105.807159], [21.02036, 105.807293], [21.020197, 105.807592], [21.020088, 105.807811], [21.020056, 105.807875], [21.019822, 105.807933], [21.019641, 105.807978], [21.019369, 105.807818], [21.018721, 105.807442], [21.018591, 105.807366], [21.018168, 105.807132], [21.018068, 105.807073], [21.017788, 105.80691], [21.017592, 105.806804], [21.017428, 105.806711], [21.017269, 105.806616], [21.017175, 105.806513], [21.017105, 105.806457], [21.017031, 105.806395], [21.016893, 105.806258], [21.016772, 105.806135], [21.016643, 105.805998], [21.016506, 105.805858], [21.016341, 105.805678], [21.016058, 105.805393], [21.015989, 105.805309], [21.015899, 105.805208], [21.015749, 105.80504], [21.015658, 105.804938], [21.015555, 105.804825], [21.01536, 105.805034], [21.015297, 105.805096], [21.014752, 105.805642], [21.014271, 105.806159], [21.013995, 105.806479], [21.01386, 105.806639], [21.01373, 105.806798], [21.013385, 105.807296], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#1f77b4",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#1f77b4",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_f0cec44823830583bfbc6852cd0a662b);
+        
+    
+            ant_path_f8857064c4f6f42f83d2c95c9bb58a97.bindTooltip(
+                `<div>
+                     Step 3 • v0 • Tạ Văn Phong → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.82 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_acb3c13aee237bbace6c5f5987cd6492 = L.marker(
+                [21.02136565045803, 105.8053672914407],
+                {
+}
+            ).addTo(feature_group_f0cec44823830583bfbc6852cd0a662b);
+        
+    
+            var beautify_icon_1ffbb866ee456e44b3d7fa5fd1252359 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 3,
+}
+            )
+            marker_acb3c13aee237bbace6c5f5987cd6492.setIcon(beautify_icon_1ffbb866ee456e44b3d7fa5fd1252359);
+        
+    
+            marker_acb3c13aee237bbace6c5f5987cd6492.bindTooltip(
+                `<div>
+                     from #5: Tạ Văn Phong
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_acb3c13aee237bbace6c5f5987cd6492.setIcon(beautify_icon_1ffbb866ee456e44b3d7fa5fd1252359);
+            
+    
+            var marker_8fb3f445abcd372d15c8562233d9120e = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_f0cec44823830583bfbc6852cd0a662b);
+        
+    
+            var beautify_icon_bc2c3d47d5c99d11aa7db8dfc949dd21 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#1f77b4",
+  "textColor": "#1f77b4",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_8fb3f445abcd372d15c8562233d9120e.setIcon(beautify_icon_bc2c3d47d5c99d11aa7db8dfc949dd21);
+        
+    
+            marker_8fb3f445abcd372d15c8562233d9120e.bindTooltip(
+                `<div>
+                     to #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8fb3f445abcd372d15c8562233d9120e.setIcon(beautify_icon_bc2c3d47d5c99d11aa7db8dfc949dd21);
+            
+    
+        var popup_9b04b2667ddb3b21795ffe300de4f9df = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6310472a288d432348804229da2b8b0e = $(`<div id="html_6310472a288d432348804229da2b8b0e" style="width: 100.0%; height: 100.0%;"><b>Step 3</b><br/>Vehicle: v0<br/>Tạ Văn Phong → Điểm dịch vụ SPX Hà Nội - Đống Đa 5<br/>1.82 km • 2.1 min</div>`)[0];
+                popup_9b04b2667ddb3b21795ffe300de4f9df.setContent(html_6310472a288d432348804229da2b8b0e);
+            
+        
+
+        feature_group_f0cec44823830583bfbc6852cd0a662b.bindPopup(popup_9b04b2667ddb3b21795ffe300de4f9df)
+        ;
+
+        
+    
+    
+            var feature_group_7e5cd32d32a08e587c51bfd56805def5 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_e02a7686a06b5a6bd942c9770bfa9682 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.010799, 105.810863], [21.010746, 105.810823], [21.010409, 105.810563], [21.010376, 105.810539], [21.010321, 105.810501], [21.010259, 105.810456], [21.009982, 105.810258], [21.00938, 105.809829], [21.009129, 105.80965], [21.008819, 105.809397], [21.008737, 105.809326], [21.008438, 105.809038], [21.008085, 105.808514], [21.007975, 105.80836], [21.007731, 105.80799], [21.007088, 105.807069], [21.006905, 105.806798], [21.00684, 105.8067], [21.00674, 105.806559], [21.006419, 105.806101], [21.005762, 105.805142], [21.005497, 105.804759], [21.005435, 105.804663], [21.005355, 105.804556], [21.005218, 105.804701], [21.005125, 105.8048], [21.005083, 105.804845], [21.004825, 105.80524], [21.004731, 105.8054], [21.004507, 105.80578], [21.004236, 105.806241], [21.003785, 105.806989], [21.003622, 105.807001], [21.003451, 105.807012], [21.002735, 105.806002], [21.002638, 105.805881], [21.002581, 105.805805], [21.00246, 105.805617], [21.002198, 105.805254], [21.001913, 105.804839], [21.001889, 105.804805], [21.001807, 105.804686], [21.0017, 105.80453]],
+              {
+  "stroke": true,
+  "color": "#ff7f0e",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#ff7f0e",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_7e5cd32d32a08e587c51bfd56805def5);
+        
+    
+            ant_path_e02a7686a06b5a6bd942c9770bfa9682.bindTooltip(
+                `<div>
+                     Step 4 • v1 • Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Phan Văn Út • 2.27 km • 2.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_47efa852b5111b1b6e8bec744a482027 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_7e5cd32d32a08e587c51bfd56805def5);
+        
+    
+            var beautify_icon_932e5c9caed66240861bcef2512bee42 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#ff7f0e",
+  "textColor": "#ff7f0e",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 4,
+}
+            )
+            marker_47efa852b5111b1b6e8bec744a482027.setIcon(beautify_icon_932e5c9caed66240861bcef2512bee42);
+        
+    
+            marker_47efa852b5111b1b6e8bec744a482027.bindTooltip(
+                `<div>
+                     from #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_47efa852b5111b1b6e8bec744a482027.setIcon(beautify_icon_932e5c9caed66240861bcef2512bee42);
+            
+    
+            var marker_2bc8476875893ae15b83b5a15725c6d1 = L.marker(
+                [21.00173474798337, 105.80450327315404],
+                {
+}
+            ).addTo(feature_group_7e5cd32d32a08e587c51bfd56805def5);
+        
+    
+            var beautify_icon_0d474df040bb3e02d9d3076e8a8a3dea = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#ff7f0e",
+  "textColor": "#ff7f0e",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_2bc8476875893ae15b83b5a15725c6d1.setIcon(beautify_icon_0d474df040bb3e02d9d3076e8a8a3dea);
+        
+    
+            marker_2bc8476875893ae15b83b5a15725c6d1.bindTooltip(
+                `<div>
+                     to #7: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2bc8476875893ae15b83b5a15725c6d1.setIcon(beautify_icon_0d474df040bb3e02d9d3076e8a8a3dea);
+            
+    
+        var popup_226ef5c3a62c1b562ae1897aeb37b293 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_128e3f6a03065276c46bb9dcaf3518d7 = $(`<div id="html_128e3f6a03065276c46bb9dcaf3518d7" style="width: 100.0%; height: 100.0%;"><b>Step 4</b><br/>Vehicle: v1<br/>Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Phan Văn Út<br/>2.27 km • 2.8 min</div>`)[0];
+                popup_226ef5c3a62c1b562ae1897aeb37b293.setContent(html_128e3f6a03065276c46bb9dcaf3518d7);
+            
+        
+
+        feature_group_7e5cd32d32a08e587c51bfd56805def5.bindPopup(popup_226ef5c3a62c1b562ae1897aeb37b293)
+        ;
+
+        
+    
+    
+            var feature_group_128d5ce3401dfdc7eba3ec59dd12ef05 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_43e286ebb200eca53058f95802c0d170 = L.polyline.antPath(
+              [[21.0017, 105.80453], [21.001807, 105.804686], [21.001889, 105.804805], [21.001913, 105.804839], [21.002198, 105.805254], [21.00246, 105.805617], [21.002581, 105.805805], [21.002638, 105.805881], [21.002735, 105.806002], [21.003451, 105.807012], [21.003622, 105.807001], [21.003785, 105.806989], [21.00392, 105.806962], [21.004301, 105.806318], [21.004643, 105.80576], [21.00492, 105.805309], [21.005206, 105.804908], [21.005295, 105.804818], [21.005345, 105.804892], [21.006057, 105.805888], [21.006714, 105.806824], [21.006821, 105.80698], [21.007293, 105.807668], [21.007367, 105.807775], [21.007658, 105.808175], [21.007905, 105.808524], [21.00803, 105.808682], [21.008398, 105.809156], [21.008529, 105.809309], [21.008657, 105.809437], [21.008943, 105.809727], [21.009218, 105.809953], [21.009249, 105.809978], [21.009813, 105.810381], [21.009845, 105.810404], [21.009876, 105.810426], [21.010155, 105.810634], [21.010215, 105.810677], [21.010268, 105.810715], [21.010295, 105.810735], [21.010635, 105.810989], [21.010689, 105.81103], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#ff7f0e",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#ff7f0e",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_128d5ce3401dfdc7eba3ec59dd12ef05);
+        
+    
+            ant_path_43e286ebb200eca53058f95802c0d170.bindTooltip(
+                `<div>
+                     Step 5 • v1 • Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.61 km • 2.0 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_6ff3e3262fd79e6586265519c2844911 = L.marker(
+                [21.00173474798337, 105.80450327315404],
+                {
+}
+            ).addTo(feature_group_128d5ce3401dfdc7eba3ec59dd12ef05);
+        
+    
+            var beautify_icon_c9af56532363b17b9f977839e11353f4 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#ff7f0e",
+  "textColor": "#ff7f0e",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 5,
+}
+            )
+            marker_6ff3e3262fd79e6586265519c2844911.setIcon(beautify_icon_c9af56532363b17b9f977839e11353f4);
+        
+    
+            marker_6ff3e3262fd79e6586265519c2844911.bindTooltip(
+                `<div>
+                     from #7: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6ff3e3262fd79e6586265519c2844911.setIcon(beautify_icon_c9af56532363b17b9f977839e11353f4);
+            
+    
+            var marker_5d706aa5c673746cc22b17dc8bb45deb = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_128d5ce3401dfdc7eba3ec59dd12ef05);
+        
+    
+            var beautify_icon_1752ff1b2aeb7f3d54d805943e6363d6 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#ff7f0e",
+  "textColor": "#ff7f0e",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_5d706aa5c673746cc22b17dc8bb45deb.setIcon(beautify_icon_1752ff1b2aeb7f3d54d805943e6363d6);
+        
+    
+            marker_5d706aa5c673746cc22b17dc8bb45deb.bindTooltip(
+                `<div>
+                     to #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5d706aa5c673746cc22b17dc8bb45deb.setIcon(beautify_icon_1752ff1b2aeb7f3d54d805943e6363d6);
+            
+    
+        var popup_ea291659701ffed1985e8c7f06f81d71 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c6a1995ccefa2a0f51af4f550c1d9625 = $(`<div id="html_c6a1995ccefa2a0f51af4f550c1d9625" style="width: 100.0%; height: 100.0%;"><b>Step 5</b><br/>Vehicle: v1<br/>Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5<br/>1.61 km • 2.0 min</div>`)[0];
+                popup_ea291659701ffed1985e8c7f06f81d71.setContent(html_c6a1995ccefa2a0f51af4f550c1d9625);
+            
+        
+
+        feature_group_128d5ce3401dfdc7eba3ec59dd12ef05.bindPopup(popup_ea291659701ffed1985e8c7f06f81d71)
+        ;
+
+        
+    
+    
+            var feature_group_19eec24d51eb12a0a9855bd4ef906304 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_abb71132a70bfd1f85789ea25c6bba7d = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010699, 105.811135], [21.010149, 105.812019], [21.009515, 105.81308], [21.009105, 105.813759], [21.009067, 105.813823], [21.008782, 105.814249], [21.008755, 105.814282], [21.008639, 105.814407], [21.008725, 105.814491], [21.008818, 105.814578], [21.008974, 105.814724], [21.009067, 105.81481], [21.009415, 105.815111], [21.009581, 105.815295], [21.009691, 105.815417], [21.009898, 105.815631], [21.010097, 105.815792], [21.010392, 105.816026], [21.010447, 105.816071], [21.010698, 105.816261], [21.011238, 105.816711], [21.011658, 105.817033], [21.011849, 105.817187], [21.011934, 105.817251], [21.012036, 105.817333], [21.012314, 105.817571], [21.012431, 105.817672], [21.012623, 105.817837], [21.012994, 105.81817], [21.013042, 105.818214], [21.013394, 105.818544], [21.013689, 105.818816], [21.013778, 105.818889], [21.013853, 105.818958], [21.014096, 105.819164], [21.014937, 105.819929], [21.015009, 105.82], [21.015125, 105.820127], [21.015191, 105.820203], [21.015239, 105.820258], [21.015375, 105.8201], [21.015428, 105.820061], [21.015955, 105.819667], [21.016032, 105.819624], [21.01655, 105.819248], [21.016663, 105.819151]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_19eec24d51eb12a0a9855bd4ef906304);
+        
+    
+            ant_path_abb71132a70bfd1f85789ea25c6bba7d.bindTooltip(
+                `<div>
+                     Step 6 • v2 • Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga • 2.28 km • 2.9 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_66923d9fd73d54333bc338be4d95e244 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_19eec24d51eb12a0a9855bd4ef906304);
+        
+    
+            var beautify_icon_f08f4ad9e81d8c1372aed7fd00cc4d02 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 6,
+}
+            )
+            marker_66923d9fd73d54333bc338be4d95e244.setIcon(beautify_icon_f08f4ad9e81d8c1372aed7fd00cc4d02);
+        
+    
+            marker_66923d9fd73d54333bc338be4d95e244.bindTooltip(
+                `<div>
+                     from #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_66923d9fd73d54333bc338be4d95e244.setIcon(beautify_icon_f08f4ad9e81d8c1372aed7fd00cc4d02);
+            
+    
+            var marker_06e3d8f5f6891a7239c021ae37ffd36c = L.marker(
+                [21.01702243123076, 105.81963260766788],
+                {
+}
+            ).addTo(feature_group_19eec24d51eb12a0a9855bd4ef906304);
+        
+    
+            var beautify_icon_3767c021d3c27822a9f0cd49203494ac = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_06e3d8f5f6891a7239c021ae37ffd36c.setIcon(beautify_icon_3767c021d3c27822a9f0cd49203494ac);
+        
+    
+            marker_06e3d8f5f6891a7239c021ae37ffd36c.bindTooltip(
+                `<div>
+                     to #6: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_06e3d8f5f6891a7239c021ae37ffd36c.setIcon(beautify_icon_3767c021d3c27822a9f0cd49203494ac);
+            
+    
+        var popup_71e8bf095e352c601d3dbbc797aba57a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_24417d9ee02beb8204935a01a3f7427c = $(`<div id="html_24417d9ee02beb8204935a01a3f7427c" style="width: 100.0%; height: 100.0%;"><b>Step 6</b><br/>Vehicle: v2<br/>Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Đinh Thị Nga<br/>2.28 km • 2.9 min</div>`)[0];
+                popup_71e8bf095e352c601d3dbbc797aba57a.setContent(html_24417d9ee02beb8204935a01a3f7427c);
+            
+        
+
+        feature_group_19eec24d51eb12a0a9855bd4ef906304.bindPopup(popup_71e8bf095e352c601d3dbbc797aba57a)
+        ;
+
+        
+    
+    
+            var feature_group_1e3f87ab342c18f220388fc14d893491 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_f241b596d766baf5b90a8a9c33d0a54b = L.polyline.antPath(
+              [[21.016663, 105.819151], [21.01655, 105.819248], [21.016032, 105.819624], [21.015955, 105.819667], [21.015428, 105.820061], [21.015375, 105.8201], [21.015325, 105.820052], [21.014298, 105.819084], [21.014059, 105.818869], [21.013978, 105.818796], [21.013902, 105.818728], [21.013815, 105.818648], [21.013386, 105.81826], [21.013158, 105.818051], [21.013116, 105.818014], [21.012859, 105.817792], [21.012794, 105.817733], [21.012609, 105.817572], [21.012355, 105.817372], [21.012159, 105.817213], [21.012083, 105.817155], [21.012005, 105.817092], [21.011481, 105.816677], [21.011133, 105.816408], [21.01082, 105.81616], [21.010642, 105.816019], [21.010544, 105.815938], [21.010488, 105.815892], [21.010238, 105.815693], [21.01009, 105.815579], [21.009957, 105.815465], [21.009678, 105.815188], [21.00941, 105.814911], [21.009195, 105.814673], [21.009022, 105.814511], [21.008928, 105.814431], [21.008864, 105.814374], [21.008755, 105.814282], [21.008639, 105.814407], [21.0084, 105.814609], [21.008101, 105.814873], [21.007642, 105.815262], [21.007355, 105.815488], [21.006664, 105.815987], [21.006189, 105.816321], [21.005777, 105.816595], [21.005575, 105.816732], [21.005215, 105.816954], [21.0048, 105.81729], [21.004707, 105.817381], [21.004549, 105.817589], [21.004522, 105.817627], [21.004322, 105.817901], [21.004266, 105.817961], [21.004228, 105.818001], [21.003956, 105.818257], [21.003749, 105.818492], [21.003735, 105.818508], [21.003663, 105.818589], [21.003645, 105.818612], [21.003605, 105.818664], [21.003488, 105.818829], [21.003474, 105.818854], [21.003377, 105.819029], [21.003277, 105.819256], [21.003216, 105.819509], [21.003116, 105.81987], [21.003093, 105.819968], [21.002975, 105.820386], [21.002855, 105.820816], [21.002805, 105.821005], [21.002794, 105.821045], [21.002678, 105.821456], [21.002622, 105.821649], [21.002598, 105.821734], [21.002578, 105.821797], [21.002546, 105.822022], [21.002463, 105.822367], [21.001568, 105.825913], [21.001429, 105.826217], [21.001226, 105.826979], [21.001211, 105.827035], [21.001461, 105.827119], [21.001476, 105.827062], [21.001616, 105.826512], [21.001688, 105.826279], [21.001663, 105.82599], [21.001988, 105.824702]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_1e3f87ab342c18f220388fc14d893491);
+        
+    
+            ant_path_f241b596d766baf5b90a8a9c33d0a54b.bindTooltip(
+                `<div>
+                     Step 7 • v2 • Đinh Thị Nga → Phan Văn Út • 3.06 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_c8a58b3cc8b070a090e43d077521e987 = L.marker(
+                [21.01702243123076, 105.81963260766788],
+                {
+}
+            ).addTo(feature_group_1e3f87ab342c18f220388fc14d893491);
+        
+    
+            var beautify_icon_6a6a407cfa698ea4d2dd95d48d3fda36 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 7,
+}
+            )
+            marker_c8a58b3cc8b070a090e43d077521e987.setIcon(beautify_icon_6a6a407cfa698ea4d2dd95d48d3fda36);
+        
+    
+            marker_c8a58b3cc8b070a090e43d077521e987.bindTooltip(
+                `<div>
+                     from #6: Đinh Thị Nga
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c8a58b3cc8b070a090e43d077521e987.setIcon(beautify_icon_6a6a407cfa698ea4d2dd95d48d3fda36);
+            
+    
+            var marker_0b432fa8e469593ce129260eac86c94b = L.marker(
+                [21.00197717655625, 105.82469930798256],
+                {
+}
+            ).addTo(feature_group_1e3f87ab342c18f220388fc14d893491);
+        
+    
+            var beautify_icon_7e2060b54554d7700a6d8cea8aee606b = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_0b432fa8e469593ce129260eac86c94b.setIcon(beautify_icon_7e2060b54554d7700a6d8cea8aee606b);
+        
+    
+            marker_0b432fa8e469593ce129260eac86c94b.bindTooltip(
+                `<div>
+                     to #4: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0b432fa8e469593ce129260eac86c94b.setIcon(beautify_icon_7e2060b54554d7700a6d8cea8aee606b);
+            
+    
+        var popup_93998717620dd2030bdb7b8d97bab4f1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e2a20f62fb4c6bc974da9a7413468fff = $(`<div id="html_e2a20f62fb4c6bc974da9a7413468fff" style="width: 100.0%; height: 100.0%;"><b>Step 7</b><br/>Vehicle: v2<br/>Đinh Thị Nga → Phan Văn Út<br/>3.06 km • 3.5 min</div>`)[0];
+                popup_93998717620dd2030bdb7b8d97bab4f1.setContent(html_e2a20f62fb4c6bc974da9a7413468fff);
+            
+        
+
+        feature_group_1e3f87ab342c18f220388fc14d893491.bindPopup(popup_93998717620dd2030bdb7b8d97bab4f1)
+        ;
+
+        
+    
+    
+            var feature_group_f4ed2c10496439074398b0c43656ac61 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_011111d923e53eefb98d4fccdab154bb = L.polyline.antPath(
+              [[21.001988, 105.824702], [21.002658, 105.822048], [21.00276, 105.821931], [21.002864, 105.821561], [21.002942, 105.821278], [21.00295, 105.821248], [21.003037, 105.820932], [21.003147, 105.820734], [21.003205, 105.820642], [21.003255, 105.820539], [21.003299, 105.820368], [21.00331, 105.820246], [21.003311, 105.820134], [21.003295, 105.819962], [21.003299, 105.819841], [21.003419, 105.819397], [21.003464, 105.819284], [21.003518, 105.819167], [21.003579, 105.819047], [21.003639, 105.818946], [21.003695, 105.818866], [21.003803, 105.818715], [21.004428, 105.818031], [21.004751, 105.817505], [21.004789, 105.817453], [21.004834, 105.817406], [21.004898, 105.817353], [21.00516, 105.817165], [21.005204, 105.817136], [21.005538, 105.816899], [21.005753, 105.816747], [21.006075, 105.816542], [21.006247, 105.816424], [21.006561, 105.816212], [21.007304, 105.815667], [21.007465, 105.815554], [21.007672, 105.8154], [21.007722, 105.815362], [21.007768, 105.815323], [21.007825, 105.815274], [21.008167, 105.814973], [21.008362, 105.814784], [21.008651, 105.814552], [21.008725, 105.814491], [21.008864, 105.814374], [21.008944, 105.814266], [21.009208, 105.813855], [21.009352, 105.813621], [21.009375, 105.813579], [21.009401, 105.813532], [21.00962, 105.813155], [21.009774, 105.812895], [21.009922, 105.812662], [21.010128, 105.812329], [21.010327, 105.812013], [21.010425, 105.811855], [21.010645, 105.811496], [21.010745, 105.811336], [21.01082, 105.81122], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#2ca02c",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#2ca02c",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_f4ed2c10496439074398b0c43656ac61);
+        
+    
+            ant_path_011111d923e53eefb98d4fccdab154bb.bindTooltip(
+                `<div>
+                     Step 8 • v2 • Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.85 km • 1.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_8bf89be2c1f6e62d31a3697cffb52658 = L.marker(
+                [21.00197717655625, 105.82469930798256],
+                {
+}
+            ).addTo(feature_group_f4ed2c10496439074398b0c43656ac61);
+        
+    
+            var beautify_icon_8ce3e85d91a7e42bdacd77396c620072 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 8,
+}
+            )
+            marker_8bf89be2c1f6e62d31a3697cffb52658.setIcon(beautify_icon_8ce3e85d91a7e42bdacd77396c620072);
+        
+    
+            marker_8bf89be2c1f6e62d31a3697cffb52658.bindTooltip(
+                `<div>
+                     from #4: Phan Văn Út
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8bf89be2c1f6e62d31a3697cffb52658.setIcon(beautify_icon_8ce3e85d91a7e42bdacd77396c620072);
+            
+    
+            var marker_0efa07836d1696c7ee0e05086a373fac = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_f4ed2c10496439074398b0c43656ac61);
+        
+    
+            var beautify_icon_b8bb74e3b28be88adefa65af2c68dc20 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#2ca02c",
+  "textColor": "#2ca02c",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_0efa07836d1696c7ee0e05086a373fac.setIcon(beautify_icon_b8bb74e3b28be88adefa65af2c68dc20);
+        
+    
+            marker_0efa07836d1696c7ee0e05086a373fac.bindTooltip(
+                `<div>
+                     to #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0efa07836d1696c7ee0e05086a373fac.setIcon(beautify_icon_b8bb74e3b28be88adefa65af2c68dc20);
+            
+    
+        var popup_9ea85c3877b88bd715f40c88b2f498b3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3a6a3862de757273b84d469ce5e4aa3f = $(`<div id="html_3a6a3862de757273b84d469ce5e4aa3f" style="width: 100.0%; height: 100.0%;"><b>Step 8</b><br/>Vehicle: v2<br/>Phan Văn Út → Điểm dịch vụ SPX Hà Nội - Đống Đa 5<br/>1.85 km • 1.8 min</div>`)[0];
+                popup_9ea85c3877b88bd715f40c88b2f498b3.setContent(html_3a6a3862de757273b84d469ce5e4aa3f);
+            
+        
+
+        feature_group_f4ed2c10496439074398b0c43656ac61.bindPopup(popup_9ea85c3877b88bd715f40c88b2f498b3)
+        ;
+
+        
+    
+    
+            var feature_group_9270db5c3e4a8678dd94a454bfb23d3c = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_50af0def960480e6d7331bccc83f48b8 = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.010799, 105.810863], [21.010746, 105.810823], [21.010409, 105.810563], [21.010376, 105.810539], [21.010321, 105.810501], [21.010259, 105.810456], [21.009982, 105.810258], [21.00938, 105.809829], [21.009129, 105.80965], [21.008819, 105.809397], [21.008737, 105.809326], [21.008438, 105.809038], [21.008085, 105.808514], [21.007975, 105.80836], [21.007731, 105.80799], [21.007088, 105.807069], [21.006905, 105.806798], [21.00684, 105.8067], [21.00674, 105.806559], [21.006419, 105.806101], [21.005762, 105.805142], [21.005497, 105.804759], [21.005435, 105.804663], [21.005355, 105.804556], [21.005218, 105.804701], [21.005125, 105.8048], [21.005083, 105.804845], [21.004825, 105.80524], [21.004731, 105.8054], [21.004507, 105.80578], [21.004236, 105.806241], [21.003785, 105.806989], [21.003622, 105.807001], [21.003451, 105.807012], [21.002735, 105.806002], [21.002638, 105.805881], [21.002581, 105.805805], [21.00246, 105.805617], [21.002198, 105.805254], [21.001913, 105.804839], [21.001889, 105.804805], [21.001807, 105.804686], [21.001681, 105.804502], [21.001627, 105.804423]],
+              {
+  "stroke": true,
+  "color": "#d62728",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#d62728",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_9270db5c3e4a8678dd94a454bfb23d3c);
+        
+    
+            ant_path_50af0def960480e6d7331bccc83f48b8.bindTooltip(
+                `<div>
+                     Step 9 • v3 • Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Lý Thị Tâm • 2.29 km • 2.8 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_23f94788cc8ad81beda3ffabf0b4974f = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_9270db5c3e4a8678dd94a454bfb23d3c);
+        
+    
+            var beautify_icon_41e8b43232aa4a02c21aa60bbefdbaae = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#d62728",
+  "textColor": "#d62728",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 9,
+}
+            )
+            marker_23f94788cc8ad81beda3ffabf0b4974f.setIcon(beautify_icon_41e8b43232aa4a02c21aa60bbefdbaae);
+        
+    
+            marker_23f94788cc8ad81beda3ffabf0b4974f.bindTooltip(
+                `<div>
+                     from #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_23f94788cc8ad81beda3ffabf0b4974f.setIcon(beautify_icon_41e8b43232aa4a02c21aa60bbefdbaae);
+            
+    
+            var marker_13266d63bad884cd51d07333e8b52521 = L.marker(
+                [21.001191755444164, 105.804766246838],
+                {
+}
+            ).addTo(feature_group_9270db5c3e4a8678dd94a454bfb23d3c);
+        
+    
+            var beautify_icon_657a69607e21bba688a67147bc896f9c = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#d62728",
+  "textColor": "#d62728",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_13266d63bad884cd51d07333e8b52521.setIcon(beautify_icon_657a69607e21bba688a67147bc896f9c);
+        
+    
+            marker_13266d63bad884cd51d07333e8b52521.bindTooltip(
+                `<div>
+                     to #3: Lý Thị Tâm
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_13266d63bad884cd51d07333e8b52521.setIcon(beautify_icon_657a69607e21bba688a67147bc896f9c);
+            
+    
+        var popup_42c3ef0582b94e6eef1bdb0fda2de6fa = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9d1739db606c92aacb992c09fefe3f96 = $(`<div id="html_9d1739db606c92aacb992c09fefe3f96" style="width: 100.0%; height: 100.0%;"><b>Step 9</b><br/>Vehicle: v3<br/>Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Lý Thị Tâm<br/>2.29 km • 2.8 min</div>`)[0];
+                popup_42c3ef0582b94e6eef1bdb0fda2de6fa.setContent(html_9d1739db606c92aacb992c09fefe3f96);
+            
+        
+
+        feature_group_9270db5c3e4a8678dd94a454bfb23d3c.bindPopup(popup_42c3ef0582b94e6eef1bdb0fda2de6fa)
+        ;
+
+        
+    
+    
+            var feature_group_94a29e91c497beee9b6f4bede68acc6e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_2bf21b6fe550ce7f75a4d5939f4f424d = L.polyline.antPath(
+              [[21.001627, 105.804423], [21.001681, 105.804502], [21.001807, 105.804686], [21.001889, 105.804805], [21.001913, 105.804839], [21.002198, 105.805254], [21.00246, 105.805617], [21.002581, 105.805805], [21.002638, 105.805881], [21.002735, 105.806002], [21.003451, 105.807012], [21.003622, 105.807001], [21.003785, 105.806989], [21.00392, 105.806962], [21.004301, 105.806318], [21.004643, 105.80576], [21.00492, 105.805309], [21.005206, 105.804908], [21.005295, 105.804818], [21.005345, 105.804892], [21.006057, 105.805888], [21.006714, 105.806824], [21.006821, 105.80698], [21.007293, 105.807668], [21.007367, 105.807775], [21.007658, 105.808175], [21.007905, 105.808524], [21.00803, 105.808682], [21.008398, 105.809156], [21.008529, 105.809309], [21.008657, 105.809437], [21.008943, 105.809727], [21.009218, 105.809953], [21.009249, 105.809978], [21.009813, 105.810381], [21.009845, 105.810404], [21.009876, 105.810426], [21.010155, 105.810634], [21.010215, 105.810677], [21.010268, 105.810715], [21.010295, 105.810735], [21.010635, 105.810989], [21.010689, 105.81103], [21.01074, 105.81107], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#d62728",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#d62728",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_94a29e91c497beee9b6f4bede68acc6e);
+        
+    
+            ant_path_2bf21b6fe550ce7f75a4d5939f4f424d.bindTooltip(
+                `<div>
+                     Step 10 • v3 • Lý Thị Tâm → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 1.63 km • 2.1 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_03cd6e7cf6af6304cccb1f73b839133b = L.marker(
+                [21.001191755444164, 105.804766246838],
+                {
+}
+            ).addTo(feature_group_94a29e91c497beee9b6f4bede68acc6e);
+        
+    
+            var beautify_icon_d29af6158cb7f294c529493766d45c03 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#d62728",
+  "textColor": "#d62728",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 10,
+}
+            )
+            marker_03cd6e7cf6af6304cccb1f73b839133b.setIcon(beautify_icon_d29af6158cb7f294c529493766d45c03);
+        
+    
+            marker_03cd6e7cf6af6304cccb1f73b839133b.bindTooltip(
+                `<div>
+                     from #3: Lý Thị Tâm
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_03cd6e7cf6af6304cccb1f73b839133b.setIcon(beautify_icon_d29af6158cb7f294c529493766d45c03);
+            
+    
+            var marker_4f20e57b4b7020a68ddec0c55e2803a8 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_94a29e91c497beee9b6f4bede68acc6e);
+        
+    
+            var beautify_icon_f11b955167bb7e1a52c4d5b2ed1c61af = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#d62728",
+  "textColor": "#d62728",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_4f20e57b4b7020a68ddec0c55e2803a8.setIcon(beautify_icon_f11b955167bb7e1a52c4d5b2ed1c61af);
+        
+    
+            marker_4f20e57b4b7020a68ddec0c55e2803a8.bindTooltip(
+                `<div>
+                     to #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4f20e57b4b7020a68ddec0c55e2803a8.setIcon(beautify_icon_f11b955167bb7e1a52c4d5b2ed1c61af);
+            
+    
+        var popup_19e0b5cc32ffd9a91a0da83904f70e9c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a678150bb351123856d33ac37b3a4b70 = $(`<div id="html_a678150bb351123856d33ac37b3a4b70" style="width: 100.0%; height: 100.0%;"><b>Step 10</b><br/>Vehicle: v3<br/>Lý Thị Tâm → Điểm dịch vụ SPX Hà Nội - Đống Đa 5<br/>1.63 km • 2.1 min</div>`)[0];
+                popup_19e0b5cc32ffd9a91a0da83904f70e9c.setContent(html_a678150bb351123856d33ac37b3a4b70);
+            
+        
+
+        feature_group_94a29e91c497beee9b6f4bede68acc6e.bindPopup(popup_19e0b5cc32ffd9a91a0da83904f70e9c)
+        ;
+
+        
+    
+    
+            var feature_group_692a36da9c2eb7f99de9cb951ac43355 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_0bede171ffcff9c3f60676ae2da90ebf = L.polyline.antPath(
+              [[21.011171, 105.810703], [21.011658, 105.809987], [21.012128, 105.809304], [21.01243, 105.808863], [21.012889, 105.808213], [21.012772, 105.808127], [21.012496, 105.808516], [21.012313, 105.808772], [21.012184, 105.80897], [21.011644, 105.809778], [21.01106, 105.810607], [21.010893, 105.810854], [21.010854, 105.810905], [21.01074, 105.81107], [21.010699, 105.811135], [21.010149, 105.812019], [21.009515, 105.81308], [21.009105, 105.813759], [21.009067, 105.813823], [21.008782, 105.814249], [21.008755, 105.814282], [21.008639, 105.814407], [21.0084, 105.814609], [21.008101, 105.814873], [21.007642, 105.815262], [21.007355, 105.815488], [21.006664, 105.815987], [21.006189, 105.816321], [21.005777, 105.816595], [21.005575, 105.816732], [21.005215, 105.816954], [21.0048, 105.81729], [21.004707, 105.817381], [21.004549, 105.817589], [21.004522, 105.817627], [21.004322, 105.817901], [21.004266, 105.817961], [21.004228, 105.818001], [21.003956, 105.818257], [21.003749, 105.818492], [21.003735, 105.818508], [21.003663, 105.818589], [21.003645, 105.818612], [21.003605, 105.818664], [21.003488, 105.818829], [21.003474, 105.818854], [21.003377, 105.819029], [21.003277, 105.819256], [21.003216, 105.819509], [21.003116, 105.81987], [21.003093, 105.819968], [21.002975, 105.820386], [21.002855, 105.820816], [21.002805, 105.821005], [21.002794, 105.821045], [21.002678, 105.821456], [21.002622, 105.821649], [21.002598, 105.821734], [21.002578, 105.821797], [21.002471, 105.821943], [21.002367, 105.822312], [21.002254, 105.822761], [21.002119, 105.823292], [21.00189, 105.824153], [21.001851, 105.824141], [21.000966, 105.823917], [21.000896, 105.82389], [21.000598, 105.82376], [21.00037, 105.823653], [21.000059, 105.823514], [20.999962, 105.823462], [20.99991, 105.823433], [20.9998, 105.823396], [20.999626, 105.823352], [20.9993, 105.823392], [20.999171, 105.823384], [20.999084, 105.823336], [20.998981, 105.823278], [20.998761, 105.823238], [20.998746, 105.823239]],
+              {
+  "stroke": true,
+  "color": "#9467bd",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#9467bd",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_692a36da9c2eb7f99de9cb951ac43355);
+        
+    
+            ant_path_0bede171ffcff9c3f60676ae2da90ebf.bindTooltip(
+                `<div>
+                     Step 11 • v4 • Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Nguyễn Văn An • 2.82 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_17c7ae28291dbdd6fa127cef66b7ca81 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_692a36da9c2eb7f99de9cb951ac43355);
+        
+    
+            var beautify_icon_e605023a5a27fb4f5f2bee5f240f0c57 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#9467bd",
+  "textColor": "#9467bd",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 11,
+}
+            )
+            marker_17c7ae28291dbdd6fa127cef66b7ca81.setIcon(beautify_icon_e605023a5a27fb4f5f2bee5f240f0c57);
+        
+    
+            marker_17c7ae28291dbdd6fa127cef66b7ca81.bindTooltip(
+                `<div>
+                     from #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_17c7ae28291dbdd6fa127cef66b7ca81.setIcon(beautify_icon_e605023a5a27fb4f5f2bee5f240f0c57);
+            
+    
+            var marker_325361ef3ba5bbc85073dc090d905b00 = L.marker(
+                [20.998750123198437, 105.82334696380568],
+                {
+}
+            ).addTo(feature_group_692a36da9c2eb7f99de9cb951ac43355);
+        
+    
+            var beautify_icon_685782b2ee5527066370e86bd4791262 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#9467bd",
+  "textColor": "#9467bd",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_325361ef3ba5bbc85073dc090d905b00.setIcon(beautify_icon_685782b2ee5527066370e86bd4791262);
+        
+    
+            marker_325361ef3ba5bbc85073dc090d905b00.bindTooltip(
+                `<div>
+                     to #1: Nguyễn Văn An
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_325361ef3ba5bbc85073dc090d905b00.setIcon(beautify_icon_685782b2ee5527066370e86bd4791262);
+            
+    
+        var popup_09e278d45ed6ef61be02c1718ed59ba8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_0fd48b3de30c7ba0c21a6d3e9afbfe60 = $(`<div id="html_0fd48b3de30c7ba0c21a6d3e9afbfe60" style="width: 100.0%; height: 100.0%;"><b>Step 11</b><br/>Vehicle: v4<br/>Điểm dịch vụ SPX Hà Nội - Đống Đa 5 → Nguyễn Văn An<br/>2.82 km • 3.5 min</div>`)[0];
+                popup_09e278d45ed6ef61be02c1718ed59ba8.setContent(html_0fd48b3de30c7ba0c21a6d3e9afbfe60);
+            
+        
+
+        feature_group_692a36da9c2eb7f99de9cb951ac43355.bindPopup(popup_09e278d45ed6ef61be02c1718ed59ba8)
+        ;
+
+        
+    
+    
+            var feature_group_6c7a926977cb5272a613c5a1b87b87e9 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            ant_path_dba4575e879de732b5d52206e1f4aca3 = L.polyline.antPath(
+              [[20.998746, 105.823239], [20.998761, 105.823238], [20.998981, 105.823278], [20.999084, 105.823336], [20.999171, 105.823384], [20.9993, 105.823392], [20.999626, 105.823352], [20.9998, 105.823396], [20.99991, 105.823433], [20.999962, 105.823462], [21.000059, 105.823514], [21.00037, 105.823653], [21.000598, 105.82376], [21.000896, 105.82389], [21.000966, 105.823917], [21.001851, 105.824141], [21.00189, 105.824153], [21.001639, 105.825172], [21.001536, 105.825569], [21.001431, 105.826016], [21.001429, 105.826217], [21.001226, 105.826979], [21.001211, 105.827035], [21.001461, 105.827119], [21.001476, 105.827062], [21.001616, 105.826512], [21.001688, 105.826279], [21.001717, 105.826184], [21.001763, 105.826056], [21.001826, 105.825834], [21.001987, 105.825201], [21.002148, 105.824564], [21.002306, 105.823974], [21.00248, 105.823302], [21.002633, 105.82269], [21.002724, 105.822265], [21.002753, 105.822084], [21.00276, 105.821931], [21.002864, 105.821561], [21.002942, 105.821278], [21.00295, 105.821248], [21.003037, 105.820932], [21.003147, 105.820734], [21.003205, 105.820642], [21.003255, 105.820539], [21.003299, 105.820368], [21.00331, 105.820246], [21.003311, 105.820134], [21.003295, 105.819962], [21.003299, 105.819841], [21.003419, 105.819397], [21.003464, 105.819284], [21.003518, 105.819167], [21.003579, 105.819047], [21.003639, 105.818946], [21.003695, 105.818866], [21.003803, 105.818715], [21.004428, 105.818031], [21.004751, 105.817505], [21.004789, 105.817453], [21.004834, 105.817406], [21.004898, 105.817353], [21.00516, 105.817165], [21.005204, 105.817136], [21.005538, 105.816899], [21.005753, 105.816747], [21.006075, 105.816542], [21.006247, 105.816424], [21.006561, 105.816212], [21.007304, 105.815667], [21.007465, 105.815554], [21.007672, 105.8154], [21.007722, 105.815362], [21.007768, 105.815323], [21.007825, 105.815274], [21.008167, 105.814973], [21.008362, 105.814784], [21.008651, 105.814552], [21.008725, 105.814491], [21.008864, 105.814374], [21.008944, 105.814266], [21.009208, 105.813855], [21.009352, 105.813621], [21.009375, 105.813579], [21.009401, 105.813532], [21.00962, 105.813155], [21.009774, 105.812895], [21.009922, 105.812662], [21.010128, 105.812329], [21.010327, 105.812013], [21.010425, 105.811855], [21.010645, 105.811496], [21.010745, 105.811336], [21.01082, 105.81122], [21.010858, 105.811158], [21.010972, 105.810992], [21.011009, 105.810941], [21.011171, 105.810703]],
+              {
+  "stroke": true,
+  "color": "#9467bd",
+  "weight": 6,
+  "opacity": 0.95,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": [
+1,
+8,
+],
+  "dashOffset": null,
+  "fill": false,
+  "fillColor": "#9467bd",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "smoothFactor": 1.0,
+  "noClip": false,
+  "paused": false,
+  "reverse": false,
+  "hardwareAcceleration": false,
+  "delay": 400,
+  "pulseColor": "#FFFFFF",
+}
+        ).addTo(feature_group_6c7a926977cb5272a613c5a1b87b87e9);
+        
+    
+            ant_path_dba4575e879de732b5d52206e1f4aca3.bindTooltip(
+                `<div>
+                     Step 12 • v4 • Nguyễn Văn An → Điểm dịch vụ SPX Hà Nội - Đống Đa 5 • 2.81 km • 3.5 min
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_7da78477829e8e8f2a32b4495baf6d79 = L.marker(
+                [20.998750123198437, 105.82334696380568],
+                {
+}
+            ).addTo(feature_group_6c7a926977cb5272a613c5a1b87b87e9);
+        
+    
+            var beautify_icon_3b6622e2afb721a40e793b2f0498e902 = new L.BeautifyIcon.icon(
+                {
+  "icon": "play",
+  "borderWidth": 3,
+  "borderColor": "#9467bd",
+  "textColor": "#9467bd",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 12,
+}
+            )
+            marker_7da78477829e8e8f2a32b4495baf6d79.setIcon(beautify_icon_3b6622e2afb721a40e793b2f0498e902);
+        
+    
+            marker_7da78477829e8e8f2a32b4495baf6d79.bindTooltip(
+                `<div>
+                     from #1: Nguyễn Văn An
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7da78477829e8e8f2a32b4495baf6d79.setIcon(beautify_icon_3b6622e2afb721a40e793b2f0498e902);
+            
+    
+            var marker_4b186c1aed2de23337e803b946be8d22 = L.marker(
+                [21.011257, 105.81077],
+                {
+}
+            ).addTo(feature_group_6c7a926977cb5272a613c5a1b87b87e9);
+        
+    
+            var beautify_icon_e58282d8342105af9e9cf4a685f7a2e6 = new L.BeautifyIcon.icon(
+                {
+  "icon": "flag",
+  "borderWidth": 3,
+  "borderColor": "#9467bd",
+  "textColor": "#9467bd",
+  "backgroundColor": "white",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": false,
+}
+            )
+            marker_4b186c1aed2de23337e803b946be8d22.setIcon(beautify_icon_e58282d8342105af9e9cf4a685f7a2e6);
+        
+    
+            marker_4b186c1aed2de23337e803b946be8d22.bindTooltip(
+                `<div>
+                     to #0: Điểm dịch vụ SPX Hà Nội - Đống Đa 5
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4b186c1aed2de23337e803b946be8d22.setIcon(beautify_icon_e58282d8342105af9e9cf4a685f7a2e6);
+            
+    
+        var popup_388a2d0a28481b62a0458a2dadb594e7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_35983aed3a771f04543d3d9fe43dbf2c = $(`<div id="html_35983aed3a771f04543d3d9fe43dbf2c" style="width: 100.0%; height: 100.0%;"><b>Step 12</b><br/>Vehicle: v4<br/>Nguyễn Văn An → Điểm dịch vụ SPX Hà Nội - Đống Đa 5<br/>2.81 km • 3.5 min</div>`)[0];
+                popup_388a2d0a28481b62a0458a2dadb594e7.setContent(html_35983aed3a771f04543d3d9fe43dbf2c);
+            
+        
+
+        feature_group_6c7a926977cb5272a613c5a1b87b87e9.bindPopup(popup_388a2d0a28481b62a0458a2dadb594e7)
+        ;
+
+        
+    
+    
+            map_b0926b21c99dee26e9378ac69ce56ec5.fitBounds(
+                [[20.998746, 105.804423], [21.02136565045803, 105.827119]],
+                {}
+            );
+        
+    
+            var layer_control_e20b11659a3050eb0724ae43f64ee1c0_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_a7971064a07b75d9c5d1b04dfb522d96,
+                },
+                overlays :  {
+                    "Customers" : marker_cluster_53c21c394ac4d56ef5dc6df49dfbfa86,
+                    "Route #0" : feature_group_5f0a99bc93def125cdb1d5b828e540db,
+                    "Route #1" : feature_group_6b8defb2174079332e96f22b262a27f1,
+                    "Route #2" : feature_group_84fcb1700ae7e63ae3f917bccad8d321,
+                    "Route #3" : feature_group_bd6aa4a67e98d5c807fc37d24a7106bc,
+                    "Route #4" : feature_group_b006a726b588740858cd99c75a274c30,
+                    "Step 1: v0 \u2022 0\u21922" : feature_group_46d8744b560c8ad6bf2cf897ecf78184,
+                    "Step 2: v0 \u2022 2\u21925" : feature_group_d0b61511a1cc2cd4b5f618827f77ea95,
+                    "Step 3: v0 \u2022 5\u21920" : feature_group_f0cec44823830583bfbc6852cd0a662b,
+                    "Step 4: v1 \u2022 0\u21927" : feature_group_7e5cd32d32a08e587c51bfd56805def5,
+                    "Step 5: v1 \u2022 7\u21920" : feature_group_128d5ce3401dfdc7eba3ec59dd12ef05,
+                    "Step 6: v2 \u2022 0\u21926" : feature_group_19eec24d51eb12a0a9855bd4ef906304,
+                    "Step 7: v2 \u2022 6\u21924" : feature_group_1e3f87ab342c18f220388fc14d893491,
+                    "Step 8: v2 \u2022 4\u21920" : feature_group_f4ed2c10496439074398b0c43656ac61,
+                    "Step 9: v3 \u2022 0\u21923" : feature_group_9270db5c3e4a8678dd94a454bfb23d3c,
+                    "Step 10: v3 \u2022 3\u21920" : feature_group_94a29e91c497beee9b6f4bede68acc6e,
+                    "Step 11: v4 \u2022 0\u21921" : feature_group_692a36da9c2eb7f99de9cb951ac43355,
+                    "Step 12: v4 \u2022 1\u21920" : feature_group_6c7a926977cb5272a613c5a1b87b87e9,
+                },
+            };
+            let layer_control_e20b11659a3050eb0724ae43f64ee1c0 = L.control.layers(
+                layer_control_e20b11659a3050eb0724ae43f64ee1c0_layers.base_layers,
+                layer_control_e20b11659a3050eb0724ae43f64ee1c0_layers.overlays,
+                {
+  "position": "topleft",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_b0926b21c99dee26e9378ac69ce56ec5);
+
+        
+</script>
+</html>

@@ -8,4 +8,6 @@ __pycache__
 .vscode
 .env
 
-*.html
+!vrp_home.html
+
+maps/*.html
