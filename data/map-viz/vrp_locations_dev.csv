@@ -1,0 +1,7 @@
+﻿customer_id,name,address,street,suburb,lat,lng,city,state,country,display_name,packages,distance_from_warehouse_km
+WAREHOUSE,Điểm dịch vụ SPX Hà Nội - Đống Đa 5,"530 Láng, P. Láng Hạ",Đường Láng,Phường Láng,21.011257,105.81077,Hà Nội,N/A,Việt Nam,"530, Đường Láng, Phường Láng, Hà Nội, 10157, Việt Nam",0,0.0
+KH_001,Đinh Thị Nga,Ngõ 9 Phố Nguyên Hồng,Ngõ 9 Phố Nguyên Hồng,Phường Giảng Võ,21.02311587396859,105.81378808465614,Hà Nội,N/A,Việt Nam,"Trường THCS Thành Công, Ngõ 9 Phố Nguyên Hồng, Khu tập thể Thành Công, Phường Giảng Võ, Hà Nội, 10067, Việt Nam",5,1.36
+KH_002,Ngô Văn Minh,Ngõ 890 Láng,Ngõ 890 Láng,Phường Láng,21.020717444127552,105.80195581131119,Hà Nội,N/A,Việt Nam,"Ngõ 890 Láng, Phường Láng, Hà Nội, 11513, Việt Nam",1,1.39
+KH_003,Nguyễn Văn An,29 Ngách 167/31 Phố Tây Sơn,Ngách 167/31 Phố Tây Sơn,Phường Kim Liên,21.010249778864818,105.82659301435342,Hà Nội,N/A,Việt Nam,"COMPLEX 01, 29, Ngách 167/31 Phố Tây Sơn, Phường Kim Liên, Hà Nội, 11415, Việt Nam",1,1.65
+KH_004,Lý Thị Tâm,282 Phố Nguyễn Huy Tưởng,Phố Nguyễn Huy Tưởng,Phường Thanh Xuân,20.99612710746094,105.80314544160171,Hà Nội,N/A,Việt Nam,"Chung cư Nhà ở xã hội Bộ Công an, 282, Phố Nguyễn Huy Tưởng, Phường Thanh Xuân, Hà Nội, 10055, Việt Nam",1,1.86
+KH_005,Lê Hoài Nam,Đường Láng,Đường Láng,Phường Láng,21.014740792956715,105.80572059236329,Hà Nội,N/A,Việt Nam,"Đường Láng, Phường Láng, Hà Nội, 11313, Việt Nam",3,0.65
