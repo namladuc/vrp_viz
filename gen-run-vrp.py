@@ -8,7 +8,8 @@ from folium.plugins import MarkerCluster
 import urllib.parse, time
 
 from vrp_viz.map_viz.stepwise_map import make_stepwise_map, VRPResult
-
+from vrp_viz.map_viz.stepwise_map import make_stepwise_map_v2
+from vrp_viz.map_viz.stepwise_mapv2 import make_stepwise_map as make_stepwise_map_v3
 
 def nearest_neighbor_vrp(
     D: np.ndarray,
@@ -169,9 +170,9 @@ if __name__ == "__main__":
     print("Points:", points)
 
     print("Demands:", demands)
-    vehicle_capacity = 10  # tổng gói/xe
+    vehicle_capacity = 5  # tổng gói/xe
     max_stops_per_route = None
-    num_vehicles = 3
+    num_vehicles = 5
     depot_idx = 0
 
     vrp = nearest_neighbor_vrp(
@@ -186,5 +187,5 @@ if __name__ == "__main__":
     for k, (route, dist_m) in enumerate(zip(vrp.routes, vrp.route_lengths)):
         print(f"Vehicle {k}: route {route}, length = {dist_m/1000:.4f} km")
 
-    out = make_stepwise_map(names, points, node_ids, vrp, out_html="vrp_stepwise_map.html")
+    out = make_stepwise_map_v3(names, points, node_ids, vrp, out_html="vrp_stepwise_map.html")
     print(f"Map saved to: {out}  (mở file HTML này để xem từng bước)")
