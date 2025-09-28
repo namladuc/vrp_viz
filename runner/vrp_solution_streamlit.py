@@ -28,7 +28,7 @@ if "step" not in st.session_state:
 @st.cache_data
 def load_instance_data(instance_name):
     try:
-        instance = vrplib.read_instance(instance_name)
+        instance = vrplib.read_instance("data/"+instance_name)
         locations = [list(coords) for coords in instance["node_coord"].tolist()]
         demands = [d for d in instance["demand"].tolist()]
         capacity = instance["capacity"]
@@ -52,7 +52,7 @@ with st.sidebar:
     st.header("Bảng điều khiển")
     instance_name = st.selectbox(
         "Chọn bộ dữ liệu từ VRPLIB",
-        ("P-n16-k8.vrp", "A-n32-k5.vrp", "E-n22-k4.vrp", "X-n101-k25.vrp (chậm)"),
+        ("P-n16-k8.vrp", "A-n32-k5.vrp", "E-n22-k4.vrp", "X-n101-k25.vrp"),
     )
     algorithm_choice = st.selectbox(
         "Chọn thuật toán",

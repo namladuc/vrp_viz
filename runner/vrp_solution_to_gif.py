@@ -27,10 +27,10 @@ def run_on_instance(instance_name, create_gifs=False):
     print("-" * 60)
 
     algorithms = {
-        "Nearest_Neighbor": nearest_neighbor,
+        # "Nearest_Neighbor": nearest_neighbor,
         "Cheapest_Insertion": cheapest_insertion,
-        "Clarke-Wright_Smallest_Saving_First": clarke_wright_smallest_saving_first,
-        "Clarke-Wright_Savings_nlogn": clarke_wright_savings_nlog,
+        # "Clarke-Wright_Smallest_Saving_First": clarke_wright_smallest_saving_first,
+        # "Clarke-Wright_Savings_nlogn": clarke_wright_savings_nlog,
     }
 
     for name, func in algorithms.items():
@@ -54,7 +54,7 @@ def run_on_instance(instance_name, create_gifs=False):
         
         if create_gifs:
             print(f"    🎬 Đang tạo GIF, vui lòng chờ...")
-            create_gif(frames_dir, gif_path, duration=10)
+            create_gif(frames_dir, gif_path, duration=40)
         print("-" * 40)
 
 
