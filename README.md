@@ -9,6 +9,23 @@ This project provides a set of tools and algorithms to solve and visualize the V
 uvicorn server_vrp:app --reload
 ```
 
+Local search: 
+- data hiện tại
+- lời giải hiện tại
+
+
+D: np.ndarray,
+demands: Optional[List[float]] = None,
+vehicle_capacity: Optional[float] = None,
+max_stops_per_route: Optional[int] = None,
+num_vehicles: int = 1,
+depot_idx: int = 0, cố định
+current_solution: VRPResult
+
+trả ra -> List[VRPResult]
+
+
+
 ---
 
 ## Project Structure
