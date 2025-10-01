@@ -47,8 +47,8 @@ def two_opt_star_local_search(
                         delta = calculate_two_opt_star_delta(D, current.routes, route_i, cut_i, route_j, cut_j)
 
                         # Verify correctness. Comment this out when done testing for a BOOM speed up.
-                        if not check_two_opt_star_delta_correctness(D, current, route_i, cut_i, route_j, cut_j, delta):
-                            raise ValueError("2-opt* delta calculation error")
+                        # if not check_two_opt_star_delta_correctness(D, current, route_i, cut_i, route_j, cut_j, delta):
+                        #     raise ValueError("2-opt* delta calculation error")
 
                         if delta < best_delta:
                             best_delta = delta

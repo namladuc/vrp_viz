@@ -1,6 +1,6 @@
 import os
 import json
-
+import time
 import pandas as pd
 import numpy as np
 
@@ -82,7 +82,7 @@ def get_run_data_from_prefix_path(
                 encoding="utf-8",
             )
         )
-        return dict_vrp, all_byte_html
+        return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
     customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
     distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
 
@@ -133,14 +133,16 @@ def get_run_data_from_prefix_path(
     max_stops_per_route = None
     depot_idx = 0  # kho là node 0
 
+    start_time = time.time()
     vrp: VRPResult = function_solver(
-        distance_matrix=D,
+        D=D,
         demands=demands,
         vehicle_capacity=vehicle_capacity,
         num_vehicles=N_VEHICLES,
-        depot=depot_idx,
+        depot_idx=depot_idx,
         max_stops_per_route=max_stops_per_route,
     )
+    end_time = time.time()
 
     # save sol to json
     with open(
@@ -152,6 +154,7 @@ def get_run_data_from_prefix_path(
             "routes": vrp.routes,
             "route_lengths": vrp.route_lengths,
             "steps": vrp.steps,
+            "duration_seconds": round(end_time - start_time, 5),
         }
         json.dump(dict_vrp, f, ensure_ascii=False, indent=4)
 
@@ -163,4 +166,111 @@ def get_run_data_from_prefix_path(
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )
 
-    return dict_vrp, out
+    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
+
+
+def get_run_data_from_local_search(
+    prefix_path: str, function_solver, solver_name: str, base_solution
+):
+    if have_run_check_solution(prefix_path, solver_name):
+        # read html file and return byte to write to response
+        all_byte_html = open(
+            os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
+            "r",
+            encoding="utf-8",
+        ).read()
+        dict_vrp = json.load(
+            open(
+                os.path.join(prefix_path, f"vrp_solution_{solver_name}.json"),
+                "r",
+                encoding="utf-8",
+            )
+        )
+        return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
+    customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
+    distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
+
+    warehouse_info = list_warehouses_infos[0]  # chọn kho mặc định
+    N_VEHICLES = 9999
+    D = distance_matrix_df.to_numpy()[:, 1:]
+    D = np.array(D, dtype=float)
+    list_customer = distance_matrix_df.columns.tolist()[2:]
+    demands = [
+        0,
+        *[
+            int(
+                customers_df.loc[customers_df["customer_id"] == cid, "packages"].values[
+                    0
+                ]
+            )
+            for cid in list_customer
+        ],
+    ]
+    points = [
+        (float(warehouse_info["lat"]), float(warehouse_info["lng"])),
+        *[
+            (
+                float(
+                    customers_df.loc[customers_df["customer_id"] == cid, "lat"].values[
+                        0
+                    ]
+                ),
+                float(
+                    customers_df.loc[customers_df["customer_id"] == cid, "lng"].values[
+                        0
+                    ]
+                ),
+            )
+            for cid in list_customer
+        ],
+    ]
+    names = [
+        warehouse_info["name"],
+        *[
+            customers_df.loc[customers_df["customer_id"] == cid, "name"].values[0]
+            for cid in list_customer
+        ],
+    ]
+    node_ids = list(range(len(points)))
+
+    vehicle_capacity = 5
+    max_stops_per_route = None
+    depot_idx = 0  # kho là node 0
+
+    start_time = time.time()
+    vrps: VRPResult = function_solver(
+        D=D,
+        demands=demands,
+        vehicle_capacity=vehicle_capacity,
+        num_vehicles=N_VEHICLES,
+        depot_idx=depot_idx,
+        max_stops_per_route=max_stops_per_route,
+        current_solution=VRPResult(
+            routes=base_solution,
+            route_lengths=[],  # not used in local search
+            steps=[]          # not used in local search
+        )
+    )
+    end_time = time.time()
+
+    # save sol to json
+    with open(
+        os.path.join(prefix_path, f"vrp_solution_{solver_name}.json"),
+        "w",
+        encoding="utf-8",
+    ) as f:
+        dict_vrp = [{
+            "routes": vrp.routes,
+            "route_lengths": vrp.route_lengths,
+            "steps": vrp.steps,
+            "duration_seconds": round(end_time - start_time, 5),
+        } for vrp in vrps]
+        json.dump(dict_vrp, f, ensure_ascii=False, indent=4)
+    out = make_stepwise_map_v3(
+        names,
+        points,
+        node_ids,
+        vrps[-1],  # chỉ vẽ bước cuối cùng
+        out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
+    )   
+    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")

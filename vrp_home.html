@@ -32,18 +32,21 @@
     }
     .fade-in-row { animation: fadeIn 0.5s ease-out; }
 
-    /* Styling for draggable items */
-    .draggable-item {
+    /* Styling for draggable points */
+    .draggable-point {
         cursor: grab;
         transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: 1px solid #e2e8f0; /* slate-200 */
     }
-    .draggable-item:hover {
-        background-color: #f8fafc; /* slate-50 */
+    .draggable-point:hover {
+        background-color: #f1f5f9; /* slate-100 */
+        border-color: #cbd5e1; /* slate-300 */
     }
     .sortable-ghost {
-        opacity: 0.4;
+        opacity: 0.5;
         background-color: #e0e7ff; /* indigo-100 */
         border: 1px dashed #a5b4fc;
+        color: transparent; /* Hide text on ghost */
     }
   </style>
 </head>
@@ -114,6 +117,16 @@
             </svg>
             Chạy thuật toán
           </button>
+
+           <div class="form-group-local-search">
+            <label for="local-search-heuristic" class="block text-sm font-medium text-slate-700 mb-1">Local search heuristic</label>
+            <select id="local-search-heuristic" name="local-search-heuristic" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <option value="2-opt">2-opt</option>
+              <option value="shift">shift</option>
+              <option value="swap">swap</option>
+            </select>
+          </div>
+
           <button id="run-local-search-btn" type="button" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.96.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
@@ -125,12 +138,12 @@
 
       <!-- ===== START: NEW SOLUTION EDITOR SECTION ===== -->
       <div id="solution-editor-section" class="mt-10 hidden">
-        <h2 class="text-xl font-bold text-slate-900 mb-4">Chỉnh sửa lời giải (Kéo & Thả)</h2>
+        <h2 class="text-xl font-bold text-slate-900 mb-4">Chỉnh sửa lời giải</h2>
         <div class="border border-slate-200 rounded-lg shadow-sm p-4 bg-white">
-            <p class="text-sm text-slate-500 mb-4">Bạn có thể kéo thả các tuyến đường dưới đây để thay đổi thứ tự và sau đó chạy Local Search để tối ưu lại.</p>
-            <ul id="solution-list" class="space-y-2">
+            <p class="text-sm text-slate-500 mb-4">Kéo thả các điểm trong mỗi tuyến để thay đổi thứ tự, sau đó chạy Local Search để tối ưu lại.</p>
+            <div id="solution-list" class="space-y-3">
                 <!-- Draggable solution routes will be injected here by JavaScript -->
-            </ul>
+            </div>
         </div>
       </div>
       <!-- ===== END: NEW SOLUTION EDITOR SECTION ===== -->
@@ -197,6 +210,7 @@
     // Main function to run the initial algorithm
     async function handleAlgorithmRun(event) {
       event.preventDefault();
+      
       const payload = {
         algorithm: document.getElementById('heuristic').value,
         dataset: {
@@ -207,7 +221,7 @@
         } 
       };
       console.log("Submitting payload to /solve:", payload);
-
+      
       try {
         const startTime = performance.now();
         
@@ -235,38 +249,61 @@
           id: runCounter,
           heuristic: heuristicText,
           dataset: datasetText,
-          totalCost: data.total_cost,
-          executionTime,
-          mapUrl: data.map_html_file
+          totalCost: data.total_distance,
+          executionTime: data.time_ms,
+          mapUrl: data.html_res,
+          res: data
         });
 
         // Update UI
-        updateResultsTable(runCounter, heuristicText, datasetText, data.total_cost, executionTime);
-        mapFrame.src = data.map_html_file;
+        updateResultsTable(runCounter, heuristicText, datasetText, data.total_distance,  data.time_ms);
+        mapFrame.src = data.html_res;
         displaySolutionForEditing(currentSolutionData);
         
-        // Enable the local search button now that we have a solution
         localSearchBtn.disabled = false;
-
+        
       } catch (err) {
         console.error("Lỗi khi chạy thuật toán:", err);
-        alert("Có lỗi xảy ra khi chạy thuật toán. Vui lòng kiểm tra console.");
+        //alert("Có lỗi xảy ra khi chạy thuật toán. Vui lòng kiểm tra console.");
       }
     }
 
     // Main function to run the local search
     async function handleLocalSearchRun() {
-        const modifiedSolution = Array.from(solutionList.querySelectorAll('li'))
-            .map(item => JSON.parse(item.dataset.route));
+        const modifiedSolution = [];
+        const routeElements = solutionList.querySelectorAll('.route-container');
+
+        routeElements.forEach(routeEl => {
+            const newRoute = [0]; // Start with depot
+            const pointElements = routeEl.querySelectorAll('.draggable-point');
+            pointElements.forEach(pointEl => {
+                newRoute.push(parseInt(pointEl.textContent, 10));
+            });
+            newRoute.push(0); // End with depot
+            modifiedSolution.push(newRoute);
+        });
 
         if (modifiedSolution.length === 0) {
             alert("Không có lời giải để chạy Local Search.");
             return;
         }
         
-        console.log("Submitting modified solution to /local-search:", modifiedSolution);
 
-        const payload = { current_solution: modifiedSolution };
+        currentSolutionData = resultsHistory.length > 0 ? resultsHistory[resultsHistory.length - 1].res : null;
+        if (!currentSolutionData) {
+            alert("Không có lời giải gốc để tham chiếu. Vui lòng chạy một thuật toán trước.");
+            return;
+        }
+
+        currentSolutionData.solution = modifiedSolution;
+
+        const payload = {
+          "base_solution": currentSolutionData,
+          "improvement_type": document.getElementById('local-search-heuristic').value
+        };
+
+        console.log("Submitting modified solution to /local-search:", payload);
+
         
         try {
             const startTime = performance.now();
@@ -283,7 +320,7 @@
             
             const executionTime = (performance.now() - startTime).toFixed(2);
 
-            alert(`Local Search thành công! Chi phí mới: ${data.total_cost}`);
+            alert(`Local Search thành công! Chi phí mới: ${data.total_distance}`);
             
             runCounter++;
             currentSolutionData = data.solution; // Update current solution
@@ -291,17 +328,18 @@
                 id: runCounter,
                 heuristic: 'Local Search',
                 dataset: 'Từ chỉnh sửa',
-                totalCost: data.total_cost,
-                executionTime,
-                mapUrl: data.map_html_file
+                totalCost: data.total_distance,
+                executionTime: data.time_ms,
+                mapUrl: data.html_res
             });
 
             // Update UI
             updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_cost, executionTime);
-            mapFrame.src = data.map_html_file;
+            mapFrame.src = data.html_res;
             displaySolutionForEditing(currentSolutionData);
 
-        } catch (err) {
+        } catch (err)
+ {
             console.error("Lỗi khi chạy Local Search:", err);
             alert("Chạy Local Search thất bại. API có thể chưa sẵn sàng.");
         }
@@ -333,17 +371,38 @@
         }
 
         solution.forEach((route, index) => {
-            const li = document.createElement('li');
-            li.className = 'draggable-item border border-slate-200 rounded-lg p-3 flex items-center bg-white shadow-sm';
-            li.dataset.route = JSON.stringify(route); // Store raw data
-            li.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                <span class="font-mono text-sm text-slate-700 truncate">Tuyến ${index + 1}: ${route.join(' → ')}</span>
+            const routeWrapper = document.createElement('div');
+            routeWrapper.className = 'route-container border-t border-slate-200 pt-3';
+            
+            // Customer points that are draggable
+            const customerPoints = route.slice(1, -1);
+            
+            let pointsHTML = customerPoints.map(point => 
+                `<span class="draggable-point font-mono text-sm p-2 rounded-md bg-white shadow-sm">${point}</span>`
+            ).join('');
+
+            routeWrapper.innerHTML = `
+                <div class="flex items-center text-sm mb-2">
+                    <span class="font-semibold text-slate-600 mr-3">Tuyến ${index + 1}:</span>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
+                        <div class="sortable-points flex items-center gap-2">
+                            ${pointsHTML}
+                        </div>
+                        <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
+                    </div>
+                </div>
             `;
-            solutionList.appendChild(li);
+            
+            solutionList.appendChild(routeWrapper);
+            
+            const sortableArea = routeWrapper.querySelector('.sortable-points');
+            new Sortable(sortableArea, { 
+                group: 'shared-routes', // This allows dragging between lists
+                animation: 150, 
+                ghostClass: 'sortable-ghost' 
+            });
         });
-        
-        new Sortable(solutionList, { animation: 150, ghostClass: 'sortable-ghost' });
         
         solutionEditorSection.classList.remove('hidden');
     }

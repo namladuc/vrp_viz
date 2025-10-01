@@ -1,0 +1,9 @@
+﻿customer_id,name,address,street,suburb,lat,lng,city,state,country,display_name,packages,distance_from_warehouse_km
+WAREHOUSE,Điểm dịch vụ SPX Hà Nội - Đống Đa 5,"530 Láng, P. Láng Hạ",Đường Láng,Phường Láng,21.011257,105.81077,Hà Nội,N/A,Việt Nam,"530, Đường Láng, Phường Láng, Hà Nội, 10157, Việt Nam",0,0.0
+KH_001,Nguyễn Văn An,Phố Cù Chính Lan,Phố Cù Chính Lan,Phường Phương Liệt,20.998750123198434,105.82334696380569,Hà Nội,N/A,Việt Nam,"Phố Cù Chính Lan, Phường Phương Liệt, Hà Nội, 11415, Việt Nam",4,1.91
+KH_002,Đinh Thị Nga,22 Phố Láng Hạ,Phố Láng Hạ,Phường Láng,21.015768556249313,105.81405109148103,Hà Nội,N/A,Việt Nam,"Toà nhà TDL, 22, Phố Láng Hạ, Phường Láng, Hà Nội, 10167, Việt Nam",2,0.61
+KH_003,Lý Thị Tâm,98A Phố Ngụy Như Kon Tum,Phố Ngụy Như Kon Tum,Phường Thanh Xuân,21.001191755444164,105.80476624683799,Hà Nội,N/A,Việt Nam,"Thăng Long Tower, 98A, Phố Ngụy Như Kon Tum, Phường Thanh Xuân, Hà Nội, 10055, Việt Nam",4,1.28
+KH_004,Phan Văn Út,Đường Trường Chinh,Đường Trường Chinh,Phường Kim Liên,21.00197717655625,105.82469930798257,Hà Nội,N/A,Việt Nam,"Đường Trường Chinh, Phường Kim Liên, Hà Nội, 11415, Việt Nam",2,1.78
+KH_005,Tạ Văn Phong,Phố Huỳnh Thúc Kháng,Phố Huỳnh Thúc Kháng,Phường Láng,21.02136565045803,105.8053672914407,Hà Nội,N/A,Việt Nam,"Phố Huỳnh Thúc Kháng, Phường Láng, Hà Nội, 11513, Việt Nam",2,1.26
+KH_006,Đinh Thị Nga,Phố Đặng Tiến Đông,Phố Đặng Tiến Đông,Phường Ô Chợ Dừa,21.01702243123076,105.81963260766788,Hà Nội,N/A,Việt Nam,"Phố Đặng Tiến Đông, Phường Ô Chợ Dừa, Hà Nội, 10265, Việt Nam",3,1.12
+KH_007,Phan Văn Út,89 Phố Ngụy Như Kon Tum,Phố Ngụy Như Kon Tum,Phường Thanh Xuân,21.001734747983374,105.80450327315405,Hà Nội,N/A,Việt Nam,"89, Phố Ngụy Như Kon Tum, Phường Thanh Xuân, Hà Nội, 10055, Việt Nam",5,1.24

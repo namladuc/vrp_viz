@@ -2,11 +2,12 @@
 *.vrp
 *.sol
 __pycache__
-*.csv
 *.ipynb_checkpoints
 .DS_Store
 .vscode
 .env
+*.json
+*.html
 
 !vrp_home.html
 
