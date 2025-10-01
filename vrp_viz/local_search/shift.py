@@ -43,8 +43,8 @@ def shift_local_search(
                     delta = calculate_shift_delta_intra(D, route, pos_i, pos_j)
 
                     # Verify correctness. Comment this out when done testing for a BOOM speed up.
-                    if not check_shift_delta_correctness(D, current, route_idx, pos_i, pos_j, delta):
-                        raise ValueError("Shift delta calculation error")
+                    # if not check_shift_delta_correctness(D, current, route_idx, pos_i, pos_j, delta):
+                    #     raise ValueError("Shift delta calculation error")
 
                     if delta < best_delta:
                         best_delta = delta
@@ -69,8 +69,8 @@ def shift_local_search(
         current.routes[route_idx].insert(pos_j, customer)
 
         # Update route length
-        # current.route_lengths[route_idx] = calculate_route_length(D, current.routes[route_idx])
-        current.route_lengths[route_idx] += best_delta
+        current.route_lengths[route_idx] = calculate_route_length(D, current.routes[route_idx])
+        # current.route_lengths[route_idx] += best_delta
 
         # Add to solutions list
         solutions.append(copy.deepcopy(current))

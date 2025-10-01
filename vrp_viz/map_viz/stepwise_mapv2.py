@@ -12,6 +12,17 @@ from folium.plugins import (
     BeautifyIcon,
     AntPath,
 )
+
+from folium.plugins import (
+    MiniMap,
+    Fullscreen,
+    MeasureControl,
+    MousePosition,
+    MarkerCluster,
+    BeautifyIcon,
+    AntPath,
+    PolyLineTextPath,
+)
 from branca.element import MacroElement, Template
 
 from .stepwise_map import get_route_from_api, VRPResult
@@ -431,6 +442,156 @@ def make_stepwise_map(
     folium.LayerControl(collapsed=False, position="topleft").add_to(m)
 
     # — Step Controller (không cần tick checkbox) —
+    if step_vars:
+        _add_step_controller(
+            m,
+            step_vars,
+            step_labels,
+            play_interval_ms=play_interval_ms,
+            cumulative=cumulative,
+        )
+
+    m.save(out_html)
+    return out_html
+
+
+def make_stepwise_map_vrps(
+    names: List[str],
+    points_latlon: List[Tuple[float, float]],
+    node_ids: List[int],
+    vrps: List[VRPResult],
+    out_html: str = "vrp_stepwise_map.html",
+    description_html: str = None,
+    throttle_s: float = 0.1,
+    cumulative: bool = False,
+    play_interval_ms: int = 900,
+) -> str:
+    """
+    - Chỉ vẽ routes hoàn chỉnh cho vrps[-1]
+    - Các vrp[:-1] vẽ như Step trong Step Controller
+      (mỗi route trong step đó có màu khác nhau)
+    """
+    # Base map
+    center = np.mean(np.array(points_latlon), axis=0).tolist()
+    m = folium.Map(
+        location=center,
+        zoom_start=12,
+        control_scale=True,
+        prefer_canvas=True,
+        tiles="CartoDB positron",
+    )
+
+    # Plugins
+    MiniMap(toggle_display=True, minimized=True).add_to(m)
+    Fullscreen().add_to(m)
+    MeasureControl(
+        primary_length_unit="meters", secondary_length_unit="kilometers"
+    ).add_to(m)
+    MousePosition(position="bottomleft", separator=" | ", prefix="Lat/Lon").add_to(m)
+
+    # Description
+    if description_html is None:
+        description_html = (
+            f"<b>Tổng quan:</b> {len(vrps)} nghiệm pháp, "
+            f"{len(vrps[-1].routes)} routes trong nghiệm pháp cuối.<br>"
+            f"<span style='opacity:0.7'>Step Controller: duyệt qua từng VRP trước đó.</span>"
+        )
+    m.get_root().add_child(
+        _html_overlay_box_bottom_right("VRP – Multi Result Viewer", description_html)
+    )
+
+    # Depot + customers
+    folium.Marker(
+        points_latlon[0], tooltip="Depot", icon=folium.Icon(color="green", icon="home")
+    ).add_to(m)
+    cluster = MarkerCluster(name="Customers").add_to(m)
+    for idx, (lat, lon) in enumerate(points_latlon[1:], start=1):
+        folium.CircleMarker(
+            (lat, lon),
+            radius=5,
+            fill=True,
+            weight=1,
+            fill_opacity=0.9,
+            tooltip=f"Customer #{idx}: {names[idx]}",
+        ).add_to(cluster)
+
+    all_poly_bounds = []
+
+    # ----------- Vẽ routes cho nghiệm pháp cuối cùng ------------
+    for r_id, route in enumerate(vrps[-1].routes):
+        color = _veh_color(r_id)
+        fg = folium.FeatureGroup(name=f"Route #{r_id}", show=True)
+        for a, b in zip(route[:-1], route[1:]):
+            u, v = node_ids[a], node_ids[b]
+            name_u, name_v = names[u], names[v]
+            geom, data_map = get_route_from_api(
+                coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
+                names=[name_u, name_v],
+            )
+            if not geom:
+                continue
+            line_coords = [[xy[1], xy[0]] for xy in geom["coordinates"]]
+            all_poly_bounds.extend(line_coords)
+            AntPath(
+                line_coords,
+                color=color,
+                weight=4,
+                opacity=0.9,
+                delay=600,
+                dash_array=[10, 20],
+                tooltip=f"Final Route {r_id}: {name_u}→{name_v}",
+            ).add_to(fg)
+            time.sleep(throttle_s)
+        fg.add_to(m)
+
+    # ----------- Vẽ các VRP trước đó như Step -----------------
+    step_vars, step_labels = [], []
+    for step_idx, vrp in enumerate(vrps[:-1], start=1):
+        fg = folium.FeatureGroup(
+            name=f"Step {step_idx}: VRP with {len(vrp.routes)} routes",
+            show=(step_idx == 1),
+        )
+        # mỗi route có màu riêng
+        for r_id, route in enumerate(vrp.routes):
+            color = _veh_color(r_id)
+            for a, b in zip(route[:-1], route[1:]):
+                u, v = node_ids[a], node_ids[b]
+                name_u, name_v = names[u], names[v]
+                geom, data_map = get_route_from_api(
+                    coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
+                    names=[name_u, name_v],
+                )
+                if not geom:
+                    continue
+                line_coords = [[xy[1], xy[0]] for xy in geom["coordinates"]]
+                all_poly_bounds.extend(line_coords)
+                folium.PolyLine(
+                    line_coords,
+                    color=color,
+                    weight=4,
+                    opacity=0.8,
+                    tooltip=f"Step {step_idx} • Route {r_id}: {name_u}→{name_v}",
+                ).add_to(fg)
+                time.sleep(throttle_s)
+        # add một marker để dễ nhận biết step
+        folium.Marker(
+            points_latlon[0],
+            tooltip=f"VRP Step {step_idx}",
+            icon=folium.Icon(color="blue", icon="info-sign"),
+        ).add_to(fg)
+
+        fg.add_to(m)
+        step_vars.append(fg.get_name())
+        step_labels.append(f"VRP Step {step_idx}: {len(vrp.routes)} routes")
+
+    # Fit bounds
+    if all_poly_bounds:
+        lats = [p[0] for p in all_poly_bounds] + [lat for lat, _ in points_latlon]
+        lons = [p[1] for p in all_poly_bounds] + [lon for _, lon in points_latlon]
+        m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]])
+
+    folium.LayerControl(collapsed=False, position="topleft").add_to(m)
+
     if step_vars:
         _add_step_controller(
             m,

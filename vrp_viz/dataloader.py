@@ -6,7 +6,7 @@ import numpy as np
 
 from .map_viz.stepwise_map import VRPResult
 from .map_viz.stepwise_mapv2 import make_stepwise_map as make_stepwise_map_v3
-
+from .map_viz.stepwise_mapv2 import make_stepwise_map_vrps
 
 list_warehouses_infos = [
     {
@@ -247,7 +247,7 @@ def get_run_data_from_local_search(
         max_stops_per_route=max_stops_per_route,
         current_solution=VRPResult(
             routes=base_solution,
-            route_lengths=[],  # not used in local search
+            route_lengths=[0 for _ in base_solution],  # not used in local search
             steps=[]          # not used in local search
         )
     )
@@ -266,11 +266,11 @@ def get_run_data_from_local_search(
             "duration_seconds": round(end_time - start_time, 5),
         } for vrp in vrps]
         json.dump(dict_vrp, f, ensure_ascii=False, indent=4)
-    out = make_stepwise_map_v3(
+    out = make_stepwise_map_vrps(
         names,
         points,
         node_ids,
-        vrps[-1],  # chỉ vẽ bước cuối cùng
+        vrps,  # chỉ vẽ bước cuối cùng
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )   
     return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
