@@ -11,6 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SortableJS for Drag & Drop -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
   <style>
     /* Custom font */
     body {
@@ -18,38 +20,30 @@
     }
 
     /* Custom scrollbar for a cleaner look */
-    .config-panel::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .config-panel::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-
-    .config-panel::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-
-    .config-panel::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+    .config-panel::-webkit-scrollbar { width: 6px; }
+    .config-panel::-webkit-scrollbar-track { background: #f1f5f9; }
+    .config-panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .config-panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
     /* Simple animation for new table rows */
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+    .fade-in-row { animation: fadeIn 0.5s ease-out; }
 
-    .fade-in-row {
-      animation: fadeIn 0.5s ease-out;
+    /* Styling for draggable items */
+    .draggable-item {
+        cursor: grab;
+        transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .draggable-item:hover {
+        background-color: #f8fafc; /* slate-50 */
+    }
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #e0e7ff; /* indigo-100 */
+        border: 1px dashed #a5b4fc;
     }
   </style>
 </head>
@@ -58,14 +52,11 @@
   <div class="flex flex-col lg:flex-row h-screen">
 
     <!-- Configuration Panel -->
-    <div
-      class="config-panel w-full lg:w-1/3 lg:max-w-md bg-white border-r border-slate-200 p-6 shadow-lg overflow-y-auto">
+    <div class="config-panel w-full lg:w-1/3 lg:max-w-md bg-white border-r border-slate-200 p-6 shadow-lg overflow-y-auto">
       <div class="flex items-center mb-6">
         <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
@@ -79,8 +70,7 @@
           <!-- Heuristic algorithm -->
           <div class="form-group">
             <label for="heuristic" class="block text-sm font-medium text-slate-700 mb-1">Thuật toán giải</label>
-            <select id="heuristic" name="heuristic"
-              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            <select id="heuristic" name="heuristic" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
               <option value="nn">Nearest Neighbor</option>
               <option value="clarke">Clarke-Wright</option>
               <option value="savings">Savings</option>
@@ -90,12 +80,11 @@
           <!-- Dataset selection -->
           <div class="form-group">
             <label for="dataset" class="block text-sm font-medium text-slate-700 mb-1">Bộ dữ liệu</label>
-            <select id="dataset" name="dataset"
-              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
-              <option value="data1">Dữ liệu mẫu 1 (20 điểm)</option>
-              <option value="data2">Dữ liệu mẫu 2 (50 điểm)</option>
-              <option value="data3">Dữ liệu mẫu 3 (100 điểm)</option>
-              <option value="random">Dữ liệu ngẫu nhiên</option>
+            <select id="dataset" name="dataset" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <option value="data1">Dữ liệu mẫu 1 (5 điểm)</option>
+              <option value="data2">Dữ liệu mẫu 2 (10 điểm)</option>
+              <option value="data3">Dữ liệu mẫu 3 (20 điểm)</option>
+              <!-- <option value="random">Dữ liệu ngẫu nhiên</option> -->
             </select>
           </div>
 
@@ -103,13 +92,11 @@
           <div id="random-data-options" class="hidden space-y-4 border-l-4 border-indigo-200 pl-4 ml-2 pt-2 pb-2">
             <div class="form-group">
               <label for="num-customers" class="block text-sm font-medium text-slate-700 mb-1">Số khách hàng</label>
-              <input type="number" id="num-customers" name="num-customers" value="50" min="1"
-                class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <input type="number" id="num-customers" name="num-customers" value="50" min="1" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
             </div>
             <div class="form-group">
               <label for="num-depots" class="block text-sm font-medium text-slate-700 mb-1">Vị trí điểm kho</label>
-              <select id="num-depots" name="num-depots"
-                class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <select id="num-depots" name="num-depots" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -119,18 +106,34 @@
           </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="mt-10">
-          <button type="submit"
-            class="w-full flex items-center justify-center py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+        <!-- Action Buttons -->
+        <div class="mt-10 space-y-4">
+          <button type="submit" class="w-full flex items-center justify-center py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path
-                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
             </svg>
             Chạy thuật toán
           </button>
+          <button id="run-local-search-btn" type="button" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.96.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+            </svg>
+            Chạy Local Search
+          </button>
         </div>
       </form>
+
+      <!-- ===== START: NEW SOLUTION EDITOR SECTION ===== -->
+      <div id="solution-editor-section" class="mt-10 hidden">
+        <h2 class="text-xl font-bold text-slate-900 mb-4">Chỉnh sửa lời giải (Kéo & Thả)</h2>
+        <div class="border border-slate-200 rounded-lg shadow-sm p-4 bg-white">
+            <p class="text-sm text-slate-500 mb-4">Bạn có thể kéo thả các tuyến đường dưới đây để thay đổi thứ tự và sau đó chạy Local Search để tối ưu lại.</p>
+            <ul id="solution-list" class="space-y-2">
+                <!-- Draggable solution routes will be injected here by JavaScript -->
+            </ul>
+        </div>
+      </div>
+      <!-- ===== END: NEW SOLUTION EDITOR SECTION ===== -->
 
       <!-- Results Table -->
       <div class="mt-10">
@@ -150,8 +153,7 @@
               </thead>
               <tbody id="results-body">
                 <tr id="placeholder-row">
-                  <td colspan="6" class="px-4 py-8 text-center text-slate-500">Chưa có kết quả. Hãy chạy một thuật toán.
-                  </td>
+                  <td colspan="6" class="px-4 py-8 text-center text-slate-500">Chưa có kết quả. Hãy chạy một thuật toán.</td>
                 </tr>
               </tbody>
             </table>
@@ -162,129 +164,206 @@
 
     <!-- Map Panel -->
     <div class="map-panel flex-grow relative bg-slate-100">
-      <!-- Embed Folium map result -->
       <iframe class="w-full h-full border-none" id="map-frame" src="vrp_introduction.html" loading="lazy"></iframe>
     </div>
   </div>
 
   <script>
+    // DOM Element References
     const form = document.getElementById('vrp-form');
     const resultsBody = document.getElementById('results-body');
     const placeholderRow = document.getElementById('placeholder-row');
     const mapFrame = document.getElementById('map-frame');
     const datasetSelect = document.getElementById('dataset');
     const randomDataOptions = document.getElementById('random-data-options');
-    let runCounter = 0;
-    const resultsHistory = []; // Store results including map source
+    const solutionEditorSection = document.getElementById('solution-editor-section');
+    const solutionList = document.getElementById('solution-list');
+    const localSearchBtn = document.getElementById('run-local-search-btn');
 
-    // Show/hide random data options based on dataset selection
-    datasetSelect.addEventListener('change', function () {
-      if (this.value === 'random') {
-        randomDataOptions.classList.remove('hidden');
-      } else {
-        randomDataOptions.classList.add('hidden');
-      }
+    // State Management
+    let runCounter = 0;
+    const resultsHistory = [];
+    let currentSolutionData = null; // Store the raw solution array for editing
+
+    // Event Listeners
+    datasetSelect.addEventListener('change', () => {
+      randomDataOptions.classList.toggle('hidden', datasetSelect.value !== 'random');
     });
 
-    form.addEventListener('submit', async function (event) {
+    form.addEventListener('submit', handleAlgorithmRun);
+    localSearchBtn.addEventListener('click', handleLocalSearchRun);
+    resultsBody.addEventListener('click', handleViewMapClick);
 
+    // Main function to run the initial algorithm
+    async function handleAlgorithmRun(event) {
       event.preventDefault();
-
       const payload = {
-        algorithm: "nearest_neighbor",
+        algorithm: document.getElementById('heuristic').value,
         dataset: {
-          type: "random",
-          n_customers: 50,
-          depot_position: 1,
-        },
+          type: datasetSelect.value === 'random' ? 'random' : 'explicit',
+          name: datasetSelect.value,
+          n_customers: parseInt(document.getElementById('num-customers').value, 10),
+          depot_position: parseInt(document.getElementById('num-depots').value, 10),
+        } 
       };
+      console.log("Submitting payload to /solve:", payload);
 
       try {
+        const startTime = performance.now();
+        
         const res = await fetch("http://localhost:8000/solve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        console.log(JSON.stringify(data, null, 2));
 
-        const startTime = performance.now();
+        console.log("API Response (/solve):", data);
 
-        // Hide placeholder text on first run
-        if (placeholderRow && placeholderRow.style.display !== 'none') {
-          placeholderRow.style.display = 'none';
-        }
-
+        const executionTime = (performance.now() - startTime).toFixed(2);
+        
+        if (placeholderRow) placeholderRow.style.display = 'none';
         runCounter++;
 
-        // Get form values
-        const heuristicSelect = document.getElementById('heuristic');
-        const heuristic = heuristicSelect.options[heuristicSelect.selectedIndex].text;
+        const heuristicText = document.getElementById('heuristic').options[document.getElementById('heuristic').selectedIndex].text;
+        const datasetText = getDatasetText(payload.dataset);
 
-        let datasetText;
-        if (datasetSelect.value === 'random') {
-          const numCustomers = document.getElementById('num-customers').value;
-          const depotLocation = document.getElementById('num-depots').value;
-          datasetText = `Ngẫu nhiên (${numCustomers} KH, Kho ${depotLocation})`;
-        } else {
-          datasetText = datasetSelect.options[datasetSelect.selectedIndex].text.split('(')[0].trim();
-        }
-
-        // Simulate a result and map for demonstration
-        const totalCost = (Math.random() * 1000 + 500).toFixed(2);
-        // In a real app, this URL would be generated by the backend
-        const mapUrl = `vrp_stepwise_map.html?run=${runCounter}`;
-
-        const endTime = performance.now();
-        const executionTime = (endTime - startTime + Math.random() * 50).toFixed(2);
-
-        // Store result
+        // Store history and current solution
+        currentSolutionData = data.solution;
         resultsHistory.push({
           id: runCounter,
-          heuristic,
+          heuristic: heuristicText,
           dataset: datasetText,
-          totalCost,
+          totalCost: data.total_cost,
           executionTime,
-          mapUrl
+          mapUrl: data.map_html_file
         });
 
-        // Update map view with the latest result
-        mapFrame.src = mapUrl;
+        // Update UI
+        updateResultsTable(runCounter, heuristicText, datasetText, data.total_cost, executionTime);
+        mapFrame.src = data.map_html_file;
+        displaySolutionForEditing(currentSolutionData);
+        
+        // Enable the local search button now that we have a solution
+        localSearchBtn.disabled = false;
 
-        // Create new row
-        const newRow = document.createElement('tr');
+      } catch (err) {
+        console.error("Lỗi khi chạy thuật toán:", err);
+        alert("Có lỗi xảy ra khi chạy thuật toán. Vui lòng kiểm tra console.");
+      }
+    }
+
+    // Main function to run the local search
+    async function handleLocalSearchRun() {
+        const modifiedSolution = Array.from(solutionList.querySelectorAll('li'))
+            .map(item => JSON.parse(item.dataset.route));
+
+        if (modifiedSolution.length === 0) {
+            alert("Không có lời giải để chạy Local Search.");
+            return;
+        }
+        
+        console.log("Submitting modified solution to /local-search:", modifiedSolution);
+
+        const payload = { current_solution: modifiedSolution };
+        
+        try {
+            const startTime = performance.now();
+
+            const res = await fetch("http://localhost:8000/local-search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const data = await res.json();
+            
+            console.log("API Response (/local-search):", data);
+            
+            const executionTime = (performance.now() - startTime).toFixed(2);
+
+            alert(`Local Search thành công! Chi phí mới: ${data.total_cost}`);
+            
+            runCounter++;
+            currentSolutionData = data.solution; // Update current solution
+            resultsHistory.push({
+                id: runCounter,
+                heuristic: 'Local Search',
+                dataset: 'Từ chỉnh sửa',
+                totalCost: data.total_cost,
+                executionTime,
+                mapUrl: data.map_html_file
+            });
+
+            // Update UI
+            updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_cost, executionTime);
+            mapFrame.src = data.map_html_file;
+            displaySolutionForEditing(currentSolutionData);
+
+        } catch (err) {
+            console.error("Lỗi khi chạy Local Search:", err);
+            alert("Chạy Local Search thất bại. API có thể chưa sẵn sàng.");
+        }
+    }
+
+    // UI Update Functions
+    function updateResultsTable(id, heuristic, datasetText, totalCost, executionTime) {
+        const newRow = resultsBody.insertRow(0); // Insert at the top
         newRow.className = 'bg-white border-b hover:bg-slate-50 transition-colors duration-200 ease-in-out fade-in-row';
         newRow.innerHTML = `
-            <td class="px-4 py-3 font-medium text-slate-900">${runCounter}</td>
-            <td class="px-4 py-3">${heuristic}</td>
-            <td class="px-4 py-3">${datasetText}</td>
-            <td class="px-4 py-3 font-semibold text-indigo-600">${totalCost}</td>
-            <td class="px-4 py-3 text-slate-500">${executionTime} ms</td>
-            <td class="px-4 py-3">
-                <button data-run-id="${runCounter}" class="view-map-btn bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-1 px-3 rounded-full transition-colors">
-                    Xem
-                </button>
-            </td>
-        `;
+          <td class="px-4 py-3 font-medium text-slate-900">${id}</td>
+          <td class="px-4 py-3">${heuristic}</td>
+          <td class="px-4 py-3">${datasetText}</td>
+          <td class="px-4 py-3 font-semibold text-indigo-600">${totalCost}</td>
+          <td class="px-4 py-3 text-slate-500">${executionTime} ms</td>
+          <td class="px-4 py-3">
+            <button data-run-id="${id}" class="view-map-btn bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-1 px-3 rounded-full transition-colors">
+              Xem
+            </button>
+          </td>`;
+    }
+    
+    function displaySolutionForEditing(solution) {
+        solutionList.innerHTML = '';
+        
+        if (!solution || solution.length === 0) {
+            solutionEditorSection.classList.add('hidden');
+            return;
+        }
 
-        // Prepend new row to have the latest result on top
-        resultsBody.prepend(newRow);
-      } catch (err) {
-        console.log("Lỗi:", err);
-      }
-    });
+        solution.forEach((route, index) => {
+            const li = document.createElement('li');
+            li.className = 'draggable-item border border-slate-200 rounded-lg p-3 flex items-center bg-white shadow-sm';
+            li.dataset.route = JSON.stringify(route); // Store raw data
+            li.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                <span class="font-mono text-sm text-slate-700 truncate">Tuyến ${index + 1}: ${route.join(' → ')}</span>
+            `;
+            solutionList.appendChild(li);
+        });
+        
+        new Sortable(solutionList, { animation: 150, ghostClass: 'sortable-ghost' });
+        
+        solutionEditorSection.classList.remove('hidden');
+    }
 
-    // Add event listener to the table body to handle clicks on "Xem" buttons
-    resultsBody.addEventListener('click', function (event) {
+    // Helper Functions
+    function handleViewMapClick(event) {
       if (event.target.classList.contains('view-map-btn')) {
         const runId = parseInt(event.target.getAttribute('data-run-id'));
         const result = resultsHistory.find(r => r.id === runId);
-        if (result) {
-          mapFrame.src = result.mapUrl;
-        }
+        if (result) mapFrame.src = result.mapUrl;
       }
-    });
+    }
+
+    function getDatasetText(datasetPayload) {
+      if (datasetPayload.type === 'random') {
+        return `Ngẫu nhiên (${datasetPayload.n_customers} KH, Kho ${datasetPayload.depot_position})`;
+      }
+      return datasetSelect.options[datasetSelect.selectedIndex].text.split('(')[0].trim();
+    }
   </script>
 </body>
-
 </html>
+

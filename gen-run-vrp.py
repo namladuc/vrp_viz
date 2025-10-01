@@ -170,7 +170,7 @@ if __name__ == "__main__":
     print("Points:", points)
 
     print("Demands:", demands)
-    vehicle_capacity = 5  # tổng gói/xe
+    vehicle_capacity = 5  # tổng gói/xef
     max_stops_per_route = None
     num_vehicles = 5
     depot_idx = 0

@@ -4,6 +4,9 @@ from pydantic import BaseModel, Field, field_validator
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 
+from vrp_viz.map_viz.stepwise_map import VRPResult
+from vrp_viz.dataloader import get_run_data_from_prefix_path
+
 app = FastAPI(title="VRP API", version="1.0.0")
 
 app.add_middleware(
@@ -19,7 +22,7 @@ app.add_middleware(
 # Pydantic Schemas
 # =====================
 
-Algorithm = Literal["nearest_neighbor"]
+Algorithm = Literal["nn", "clarke", "savings"]
 DatasetType = Literal["random", "explicit"]
 
 class Coord(BaseModel):
@@ -34,7 +37,7 @@ class RandomDataset(BaseModel):
 
 class ExplicitDataset(BaseModel):
     type: Literal["explicit"]
-    customers: List[Coord] = Field(..., min_items=1)
+    name: Literal["data1", "data2", "data3"] = Field(..., description="Tên dataset")
 
 class SolveRequest(BaseModel):
     algorithm: Algorithm
@@ -45,6 +48,7 @@ class SolveResponse(BaseModel):
     depot: int
     time_ms: Optional[float] = None
     total_distance: float
+    solution: List[List[int]]  
 
 # =====================
 # Validators
@@ -68,19 +72,23 @@ def solve(req: SolveRequest):
     print("Received request:", req.dataset)
     if req.dataset.type == "random":
         print("Generating random dataset...")
+        # currently not supported
+        raise HTTPException(status_code=400, detail="Random dataset generation not implemented yet.")
     else:
-        ds: ExplicitDataset = ExplicitDataset(**req.dataset)
-        depot = ds.depot
-        customers = ds.customers
-        if len(customers) == 0:
-            raise HTTPException(status_code=400, detail="Danh sách khách hàng rỗng.")
+        print("Using explicit dataset...")
+        ## print(current location file)
+        print("Current location file:", __file__)
+        ds: ExplicitDataset = req.dataset
 
-    if req.algorithm != "nearest_neighbor":
-        raise HTTPException(status_code=400, detail="Hiện chỉ hỗ trợ 'nearest_neighbor'.")
+    if req.algorithm not in ["nn", "clarke", "savings"]:
+        raise HTTPException(status_code=400, detail="Hiện chỉ hỗ trợ 'nn', 'clarke', 'savings'.")
+
+    
 
     return SolveResponse(
         received=req,
         depot=2,
         total_distance=123.45,
-        route_order_indices=[0, 2, 1, 3]  # ví dụ: kho -> khách 2 -> khách 1 -> khách 3
+        time_ms=150.0,
+        solution=[[0, 2, 1, 3], [0, 1, 2, 3]],  # ví dụ:
     )

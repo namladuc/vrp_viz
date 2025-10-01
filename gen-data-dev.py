@@ -24,8 +24,8 @@ if __name__ == "__main__":
         'post_office': 'Bưu cục shopee',
     }
 
-    N_CUSTOMERS = 5   # số KH cần tạo
-    RADIUS_KM = 2       # bán kính tìm kiếm (km)
+    N_CUSTOMERS = 70   # số KH cần tạo
+    RADIUS_KM = 3       # bán kính tìm kiếm (km)
     MIN_PACKAGES = 1    # min gói/khách
     MAX_PACKAGES = 5    # max gói/khách
     
