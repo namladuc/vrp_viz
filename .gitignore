@@ -8,6 +8,7 @@ __pycache__
 .env
 *.json
 *.html
+*.csv
 
 !vrp_home.html
 

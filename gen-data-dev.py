@@ -1,6 +1,7 @@
 import time
 from typing import List
-
+import json
+import tqdm
 import pandas as pd
 import numpy as np
 
@@ -11,6 +12,7 @@ from vrp_viz.map_viz.gen_data import (
     calculate_distance_km
 )
 from vrp_viz.map_viz.api_osmr import get_matrix, parse_coordinates
+from vrp_viz.map_viz.stepwise_map import get_route_from_api
 
 if __name__ == "__main__":
     
@@ -24,10 +26,12 @@ if __name__ == "__main__":
         'post_office': 'Bưu cục shopee',
     }
 
-    N_CUSTOMERS = 70   # số KH cần tạo
-    RADIUS_KM = 3       # bán kính tìm kiếm (km)
+    N_CUSTOMERS = 20   # số KH cần tạo
+    RADIUS_KM = 5       # bán kính tìm kiếm (km)
     MIN_PACKAGES = 1    # min gói/khách
     MAX_PACKAGES = 5    # max gói/khách
+    folder_res = f"data{N_CUSTOMERS}"
+    
     
     print('Kho hàng:')
     print(f"- Tên: {warehouse_info['name']}")
@@ -152,15 +156,15 @@ if __name__ == "__main__":
         print(f"   - {c['customer_id']}: {c['name']} - {c['distance_from_warehouse_km']:.2f} km")
         
     # Lưu dữ liệu
-    locations_file = f"data/map-viz/vrp_locations_dev.csv"
+    locations_file = f"data/{folder_res}/vrp_locations_dev.csv"
     all_locations_df.to_csv(locations_file, index=False, encoding='utf-8-sig')
     print("Lưu locations:", locations_file)
 
-    distance_file = f"data/map-viz/vrp_distances_dev.csv"
+    distance_file = f"data/{folder_res}/vrp_distances_dev.csv"
     distances_df.to_csv(distance_file, encoding='utf-8-sig')
     print("Lưu distances:", distance_file)
 
-    customers_file = f"data/map-viz/vrp_customers_dev.csv"
+    customers_file = f"data/{folder_res}/vrp_customers_dev.csv"
     customers_df.to_csv(customers_file, index=False, encoding='utf-8-sig')
     print("Lưu customers:", customers_file)
 
@@ -177,8 +181,27 @@ if __name__ == "__main__":
         'locations_file': [locations_file],
         'distance_file': [distance_file],
     })
-    summary_file = f"data/map-viz/vrp_summary_dev.csv"
+    summary_file = f"data/{folder_res}/vrp_summary_dev.csv"
     summary_df.to_csv(summary_file, index=False, encoding='utf-8-sig')
     print("Lưu summary:", summary_file)
+    
+    ## add tqdm để hiện tiến độ
+    dict_loc_api = {}
+    for i, row in all_locations_df.iterrows():
+        for j, row2 in all_locations_df.iterrows():
+            if i != j:
+                u, v = i, j
+                id_1 = row['customer_id']
+                id_2 = row2['customer_id']
+                key_name = f"{u}:{v}"
+                key_loc = f"{row['lng']},{row['lat']};{row2['lng']},{row2['lat']}"
+                print(f"Lấy route {u}->{v} | {key_loc}")
+                route_info, route_full = get_route_from_api(key_loc, "dev")
+                dict_loc_api[key_name] = [route_info, route_full]
+                time.sleep(0.15)  # tránh spam API
 
+    # save dict_loc_api to a file
+    route_file = f"data/{folder_res}/vrp_routes_dev.json"
+    with open(route_file, 'w', encoding='utf-8') as f:
+        json.dump(dict_loc_api, f, ensure_ascii=False, indent=4)
     print("\n=== HOÀN THÀNH ===")

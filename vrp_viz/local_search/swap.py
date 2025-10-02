@@ -38,8 +38,8 @@ def swap_local_search(
                     delta = calculate_swap_delta_intra(D, route, pos_i, pos_j)
 
                     # Verify correctness. Comment this out when done testing for a BOOM speed up.
-                    if not check_swap_delta_correctness(D, current, route_idx, pos_i, pos_j, delta):
-                        raise ValueError("Swap delta calculation error")
+                    # if not check_swap_delta_correctness(D, current, route_idx, pos_i, pos_j, delta):
+                    #     raise ValueError("Swap delta calculation error")
 
                     if delta < best_delta:
                         best_delta = delta

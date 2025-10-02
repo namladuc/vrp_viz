@@ -231,6 +231,7 @@ def make_stepwise_map(
     points_latlon: List[Tuple[float, float]],  # (lat, lon)
     node_ids: List[int],  # map index in route -> index in names/points_latlon
     vrp,  # VRPResult có .routes, .steps
+    cache_location: dict = None,  # cache JSON từ OSRM/GraphHopper
     out_html: str = "vrp_stepwise_map.html",
     description_html: str = None,  # mô tả tự do (HTML)
     throttle_s: float = 0.15,  # hạn chế gọi API dày
@@ -314,10 +315,12 @@ def make_stepwise_map(
         for a, b in zip(route[:-1], route[1:]):
             u, v = node_ids[a], node_ids[b]
             name_u, name_v = names[u], names[v]
-            geom, data_map = get_route_from_api(
-                coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
-                names=[name_u, name_v],
+            key_name = f"{u}:{v}"
+            key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
+            geom, data_map = cache_location.get(
+                key_name
             )
+            
             if geom is None:
                 print(f"Không lấy được route {name_u} -> {name_v}")
                 continue
@@ -371,9 +374,10 @@ def make_stepwise_map(
 
         u, v = node_ids[from_idx], node_ids[to_idx]
         name_u, name_v = names[u], names[v]
-        geom, data_map = get_route_from_api(
-            coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
-            names=[name_u, name_v],
+        key_name = f"{u}:{v}"
+        key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
+        geom, data_map = cache_location.get(
+            key_name,
         )
         if geom is None:
             print(f"Không lấy được step {name_u} -> {name_v}")
@@ -460,6 +464,7 @@ def make_stepwise_map_vrps(
     points_latlon: List[Tuple[float, float]],
     node_ids: List[int],
     vrps: List[VRPResult],
+    cache_location: dict = None,
     out_html: str = "vrp_stepwise_map.html",
     description_html: str = None,
     throttle_s: float = 0.1,
@@ -524,9 +529,10 @@ def make_stepwise_map_vrps(
         for a, b in zip(route[:-1], route[1:]):
             u, v = node_ids[a], node_ids[b]
             name_u, name_v = names[u], names[v]
-            geom, data_map = get_route_from_api(
-                coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
-                names=[name_u, name_v],
+            key_name = f"{u}:{v}"
+            key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
+            geom, _ = cache_location.get(
+                key_name,
             )
             if not geom:
                 continue
@@ -557,9 +563,10 @@ def make_stepwise_map_vrps(
             for a, b in zip(route[:-1], route[1:]):
                 u, v = node_ids[a], node_ids[b]
                 name_u, name_v = names[u], names[v]
-                geom, data_map = get_route_from_api(
-                    coords=f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}",
-                    names=[name_u, name_v],
+                key_name = f"{u}:{v}"
+                key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
+                geom, _ = cache_location.get(
+                    key_name,
                 )
                 if not geom:
                     continue

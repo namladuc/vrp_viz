@@ -3,6 +3,7 @@ import json
 import time
 import pandas as pd
 import numpy as np
+from typing import List, Optional
 
 from .map_viz.stepwise_map import VRPResult
 from .map_viz.stepwise_mapv2 import make_stepwise_map as make_stepwise_map_v3
@@ -85,6 +86,11 @@ def get_run_data_from_prefix_path(
         return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
     customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
     distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
+    cache_location_file = os.path.join(prefix_path, "vrp_routes_dev.json")
+    if os.path.exists(cache_location_file):
+        with open(cache_location_file, "r", encoding="utf-8") as f:
+            cache_location = json.load(f)
+    
 
     warehouse_info = list_warehouses_infos[0]  # chọn kho mặc định
     N_VEHICLES = 9999
@@ -134,7 +140,7 @@ def get_run_data_from_prefix_path(
     depot_idx = 0  # kho là node 0
 
     start_time = time.time()
-    vrp: VRPResult = function_solver(
+    vrps: List[VRPResult] = function_solver(
         D=D,
         demands=demands,
         vehicle_capacity=vehicle_capacity,
@@ -151,18 +157,19 @@ def get_run_data_from_prefix_path(
         encoding="utf-8",
     ) as f:
         dict_vrp = {
-            "routes": vrp.routes,
-            "route_lengths": vrp.route_lengths,
-            "steps": vrp.steps,
+            "routes": vrps[-1].routes,
+            "route_lengths": vrps[-1].route_lengths,
+            "steps": vrps[-1].steps,
             "duration_seconds": round(end_time - start_time, 5),
         }
         json.dump(dict_vrp, f, ensure_ascii=False, indent=4)
 
-    out = make_stepwise_map_v3(
+    out = make_stepwise_map_vrps(
         names,
         points,
         node_ids,
-        vrp,
+        vrps,
+        cache_location,
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )
 

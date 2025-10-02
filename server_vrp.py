@@ -52,7 +52,7 @@ class RandomDataset(BaseModel):
 
 class ExplicitDataset(BaseModel):
     type: Literal["explicit"]
-    name: Literal["data1", "data2", "data3"] = Field(..., description="Tên dataset")
+    name: Literal["data10", "data20", "data50"] = Field(..., description="Tên dataset")
 
 
 class SolveRequest(BaseModel):

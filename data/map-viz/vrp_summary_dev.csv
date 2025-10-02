@@ -1,2 +1,2 @@
 ﻿timestamp,warehouse_name,warehouse_lat,warehouse_lng,n_customers,radius_km,total_packages,avg_distance_km,max_distance_km,locations_file,distance_file
-2025-09-28 12:00:00,Điểm dịch vụ SPX Hà Nội - Đống Đa 5,21.011257,105.81077,70,3,208,1.9269999999999998,2.84,data/map-viz/vrp_locations_dev.csv,data/map-viz/vrp_distances_dev.csv
+2025-09-28 12:00:00,Điểm dịch vụ SPX Hà Nội - Đống Đa 5,21.011257,105.81077,5,5,11,3.438,4.38,data/map-viz/vrp_locations_dev.csv,data/map-viz/vrp_distances_dev.csv

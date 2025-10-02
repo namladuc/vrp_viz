@@ -379,3 +379,24 @@ def make_stepwise_map_v2(
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(out_html)
     return out_html
+
+if __name__ == "__main__":
+    # --- Thay chuỗi coords dưới đây bằng chuỗi "lon,lat;lon,lat;..." bạn muốn test ---
+    coords = "100.5018,13.7563;100.5130,13.7367"  # ví dụ: hai điểm ở Bangkok (lon,lat;lon,lat)
+    names = ["start", "end"]
+
+    geo, full = get_route_from_api(coords, names)
+    print("Full response:", full)
+    if geo is None:
+        print("Không có geometry trả về.")
+    else:
+        coords_list = geo.get("coordinates", [])
+        print("Geometry type:", geo.get("type"))
+        print("Tổng điểm trong geometry:", len(coords_list))
+        if coords_list:
+            print("First coordinate:", coords_list[0])
+            print("Last coordinate:", coords_list[-1])
+        # nếu cần, in toàn bộ geo (cẩn thận nếu dài)
+        # print("Full geometry:", geo)
+        # in tóm tắt response nếu muốn debug
+        # import json; print(json.dumps(full, indent=2))

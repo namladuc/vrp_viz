@@ -84,9 +84,9 @@
           <div class="form-group">
             <label for="dataset" class="block text-sm font-medium text-slate-700 mb-1">Bộ dữ liệu</label>
             <select id="dataset" name="dataset" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
-              <option value="data1">Dữ liệu mẫu 1 (5 điểm)</option>
-              <option value="data2">Dữ liệu mẫu 2 (10 điểm)</option>
-              <option value="data3">Dữ liệu mẫu 3 (20 điểm)</option>
+              <option value="data10">Dữ liệu mẫu 1 (10 điểm)</option>
+              <!-- <option value="data20">Dữ liệu mẫu 2 (20 điểm)</option> -->
+              <!-- <option value="data50">Dữ liệu mẫu 3 (50 điểm)</option> -->
               <!-- <option value="random">Dữ liệu ngẫu nhiên</option> -->
             </select>
           </div>
@@ -288,7 +288,7 @@
             return;
         }
         
-
+        console.log("Modified solution for Local Search:", resultsHistory);
         currentSolutionData = resultsHistory.length > 0 ? resultsHistory[resultsHistory.length - 1].res : null;
         if (!currentSolutionData) {
             alert("Không có lời giải gốc để tham chiếu. Vui lòng chạy một thuật toán trước.");
@@ -330,16 +330,15 @@
                 dataset: 'Từ chỉnh sửa',
                 totalCost: data.total_distance,
                 executionTime: data.time_ms,
-                mapUrl: data.html_res
+                mapUrl: data.html_res,
+                res: data
             });
 
             // Update UI
-            updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_cost, executionTime);
+            updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_distance, data.time_ms);
             mapFrame.src = data.html_res;
             displaySolutionForEditing(currentSolutionData);
-
-        } catch (err)
- {
+        } catch (err) {
             console.error("Lỗi khi chạy Local Search:", err);
             alert("Chạy Local Search thất bại. API có thể chưa sẵn sàng.");
         }

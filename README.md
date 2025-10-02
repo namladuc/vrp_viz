@@ -24,7 +24,7 @@ current_solution: VRPResult
 
 trả ra -> List[VRPResult]
 
-
+10 - 20 - 50 -70
 
 ---
 
