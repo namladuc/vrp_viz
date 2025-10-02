@@ -341,7 +341,6 @@ def make_stepwise_map(
                 opacity=0.85,
                 color=color,
             ).add_to(fg)
-            time.sleep(throttle_s)
 
         if route:
             first_idx = node_ids[route[0]]
@@ -434,7 +433,6 @@ def make_stepwise_map(
         step_vars.append(fg.get_name())
         step_labels.append(f"Step {s_id}: v{veh} • {from_idx}→{to_idx}")
 
-        time.sleep(throttle_s)
 
     # — Fit bounds —
     if all_poly_bounds:
@@ -523,36 +521,35 @@ def make_stepwise_map_vrps(
     all_poly_bounds = []
 
     # ----------- Vẽ routes cho nghiệm pháp cuối cùng ------------
-    for r_id, route in enumerate(vrps[-1].routes):
-        color = _veh_color(r_id)
-        fg = folium.FeatureGroup(name=f"Route #{r_id}", show=True)
-        for a, b in zip(route[:-1], route[1:]):
-            u, v = node_ids[a], node_ids[b]
-            name_u, name_v = names[u], names[v]
-            key_name = f"{u}:{v}"
-            key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
-            geom, _ = cache_location.get(
-                key_name,
-            )
-            if not geom:
-                continue
-            line_coords = [[xy[1], xy[0]] for xy in geom["coordinates"]]
-            all_poly_bounds.extend(line_coords)
-            AntPath(
-                line_coords,
-                color=color,
-                weight=4,
-                opacity=0.9,
-                delay=600,
-                dash_array=[10, 20],
-                tooltip=f"Final Route {r_id}: {name_u}→{name_v}",
-            ).add_to(fg)
-            time.sleep(throttle_s)
-        fg.add_to(m)
+    # for r_id, route in enumerate(vrps[-1].routes):
+    #     color = _veh_color(r_id)
+    #     fg = folium.FeatureGroup(name=f"Route #{r_id}", show=True)
+    #     for a, b in zip(route[:-1], route[1:]):
+    #         u, v = node_ids[a], node_ids[b]
+    #         name_u, name_v = names[u], names[v]
+    #         key_name = f"{u}:{v}"
+    #         key_loc = f"{points_latlon[u][1]},{points_latlon[u][0]};{points_latlon[v][1]},{points_latlon[v][0]}"
+    #         geom, _ = cache_location.get(
+    #             key_name,
+    #         )
+    #         if not geom:
+    #             continue
+    #         line_coords = [[xy[1], xy[0]] for xy in geom["coordinates"]]
+    #         all_poly_bounds.extend(line_coords)
+    #         AntPath(
+    #             line_coords,
+    #             color=color,
+    #             weight=4,
+    #             opacity=0.9,
+    #             delay=600,
+    #             dash_array=[10, 20],
+    #             tooltip=f"Final Route {r_id}: {name_u}→{name_v}",
+    #         ).add_to(fg)
+    #     fg.add_to(m)
 
     # ----------- Vẽ các VRP trước đó như Step -----------------
     step_vars, step_labels = [], []
-    for step_idx, vrp in enumerate(vrps[:-1], start=1):
+    for step_idx, vrp in enumerate(vrps, start=1):
         fg = folium.FeatureGroup(
             name=f"Step {step_idx}: VRP with {len(vrp.routes)} routes",
             show=(step_idx == 1),
@@ -572,14 +569,14 @@ def make_stepwise_map_vrps(
                     continue
                 line_coords = [[xy[1], xy[0]] for xy in geom["coordinates"]]
                 all_poly_bounds.extend(line_coords)
-                folium.PolyLine(
+                AntPath(
                     line_coords,
                     color=color,
                     weight=4,
-                    opacity=0.8,
+                    opacity=0.7,
+                    delay=600,
                     tooltip=f"Step {step_idx} • Route {r_id}: {name_u}→{name_v}",
                 ).add_to(fg)
-                time.sleep(throttle_s)
         # add một marker để dễ nhận biết step
         folium.Marker(
             points_latlon[0],

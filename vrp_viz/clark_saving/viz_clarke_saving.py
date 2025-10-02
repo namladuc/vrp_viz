@@ -17,11 +17,14 @@ def clarke_wright_savings_vrp(
     max_stops_per_route: Optional[int] = None,  # tuỳ chọn
     num_vehicles: Optional[int] = None,         # nếu None: không ép số xe
     depot_idx: int = 0,
-) -> "VRPResult":
+) -> List[VRPResult]:
     """
-    Clarke–Wright Savings (cơ bản).
-    Trả về VRPResult với steps có 3 key chính: vehicle, from, to (giữ nguyên).
-    Thêm 'detail' để giải thích (không thay đổi 3 key cốt lõi).
+    Clarke–Wright Savings (cơ bản) — trả về danh sách VRPResult dạng stepwise.
+    - Snapshot #0: mỗi tuyến tương ứng 1 customer (đều đóng depot).
+    - Mỗi lần merge:
+        * Snapshot A (pre-merge): chỉ 2 tuyến sẽ gộp (đều đóng depot).
+        * Snapshot B (post-merge): chỉ tuyến mới sau khi gộp (đã đóng depot).
+    steps[] vẫn giữ 3 key: vehicle/from/to + 'detail' mô tả.
     """
     n = int(D.shape[0])
     assert D.shape[0] == D.shape[1], "D must be square"
@@ -32,32 +35,71 @@ def clarke_wright_savings_vrp(
 
     customers = [i for i in range(n) if i != depot_idx]
 
+    # routes_dict: rid -> {"path": [customers...], "demand": float}
     routes_dict: Dict[int, Dict] = {}
     endpoint_owner: Dict[int, int] = {}
     next_route_id = 1
 
+    # Các bước diễn giải (cộng dồn)
     steps: List[dict] = []
 
-    # ===== Khởi tạo tuyến mở (singleton) =====
+    # ========== Helpers ==========
+    def closed_route_and_len(path: List[int]) -> Tuple[List[int], float]:
+        """Trả về route đóng depot [depot, ...path..., depot] và tổng độ dài."""
+        if not path:
+            return [depot_idx, depot_idx], 0.0
+        # kiểm tra hữu hạn
+        if not (np.isfinite(D[depot_idx, path[0]]) and np.isfinite(D[path[-1], depot_idx])):
+            return None, np.inf  # báo không khả thi
+        length = float(D[depot_idx, path[0]])
+        for u, v in zip(path[:-1], path[1:]):
+            if not np.isfinite(D[u, v]):
+                return None, np.inf
+            length += float(D[u, v])
+        length += float(D[path[-1], depot_idx])
+        return [depot_idx] + path + [depot_idx], length
+
+    def snapshot_from_paths(paths: List[List[int]]) -> VRPResult:
+        """Tạo VRPResult từ danh sách path (chưa đóng). Route sẽ đóng depot và tính length."""
+        routes: List[List[int]] = []
+        lens: List[float] = []
+        for p in paths:
+            r, L = closed_route_and_len(p)
+            if r is None:  # nếu có cạnh vô hạn -> bỏ qua snapshot cho tuyến đó
+                continue
+            routes.append(r)
+            lens.append(L)
+        return VRPResult(routes=routes, route_lengths=lens, steps=list(steps))
+
+    def stops_ok_after_merge(path_a: List[int], path_b: List[int]) -> bool:
+        if max_stops_per_route is None:
+            return True
+        return (len(path_a) + len(path_b)) <= max_stops_per_route
+
+    # ========== Khởi tạo singleton ==========
     for i in customers:
         rid = next_route_id
         next_route_id += 1
         routes_dict[rid] = {"path": [i], "demand": float(demands[i])}
         endpoint_owner[i] = rid
 
-        # Ghi step “khởi tạo” (depot -> i) để người xem thấy nếu không merge thì sẽ là 2-chặng
+        # Ghi step init
         steps.append({
-            "vehicle": rid - 1,      # tạm coi mỗi singleton là 1 xe trong giai đoạn init
+            "vehicle": rid - 1,
             "from": depot_idx,
             "to": i,
-            "detail": f"Init route #{rid}: start singleton at customer {i} (demand={demands[i]:.3f})"
+            "detail": f"Init route #{rid}: singleton at customer {i} (demand={demands[i]:.3f})"
         })
 
-    # ===== Tính & sắp xếp Savings =====
+    # Snapshot #0: mỗi tuyến là một customer (đều đóng depot)
+    snapshots: List[VRPResult] = []
+    snapshots.append(snapshot_from_paths([r["path"] for r in routes_dict.values()]))
+
+    # ========== Tính & sắp xếp Savings ==========
     savings: List[Tuple[float, int, int]] = []
     for idx_i, i in enumerate(customers):
         di = D[depot_idx, i]
-        if not np.isfinite(di): 
+        if not np.isfinite(di):
             continue
         for j in customers[idx_i + 1:]:
             dj = D[depot_idx, j]
@@ -65,9 +107,8 @@ def clarke_wright_savings_vrp(
             if np.isfinite(dj) and np.isfinite(dij):
                 s_ij = float(di + dj - dij)
                 savings.append((s_ij, i, j))
-                # Step giải thích “tính saving”
                 steps.append({
-                    "vehicle": -1,       # -1: bước tính toán/logic, không thuộc xe cụ thể
+                    "vehicle": -1,
                     "from": i,
                     "to": j,
                     "detail": f"Compute saving S({i},{j}) = D({depot_idx},{i}) + D({depot_idx},{j}) - D({i},{j}) = {s_ij:.3f}"
@@ -81,12 +122,7 @@ def clarke_wright_savings_vrp(
         "detail": f"Sort savings descending; total pairs={len(savings)}"
     })
 
-    def stops_ok_after_merge(path_a: List[int], path_b: List[int]) -> bool:
-        if max_stops_per_route is None:
-            return True
-        return (len(path_a) + len(path_b)) <= max_stops_per_route
-
-    # ===== Hợp nhất theo Savings =====
+    # ========== Hợp nhất theo Savings ==========
     for s, i, j in savings:
         rid_i = endpoint_owner.get(i)
         rid_j = endpoint_owner.get(j)
@@ -109,7 +145,7 @@ def clarke_wright_savings_vrp(
         if not stops_ok_after_merge(path_i, path_j):
             steps.append({
                 "vehicle": -1, "from": i, "to": j,
-                "detail": f"Skip merge ({i},{j}) due to max_stops constraint: {len(path_i)}+{len(path_j)}>{max_stops_per_route}"
+                "detail": f"Skip merge ({i},{j}) due to max_stops: {len(path_i)}+{len(path_j)}>{max_stops_per_route}"
             })
             continue
 
@@ -131,6 +167,13 @@ def clarke_wright_savings_vrp(
             })
             continue
 
+        # --- Snapshot A: chỉ 2 tuyến sẽ gộp (đều đóng depot) ---
+        steps.append({
+            "vehicle": -1, "from": i, "to": j,
+            "detail": f"Preview merge ({i},{j}) via {case}: show 2 routes before merge"
+        })
+        snapshots.append(snapshot_from_paths([path_i, path_j]))
+
         # Ghi step “thử merge”
         steps.append({
             "vehicle": -1, "from": i, "to": j,
@@ -151,62 +194,163 @@ def clarke_wright_savings_vrp(
 
         routes_dict.pop(rid_j, None)
 
+        # --- Snapshot B: chỉ tuyến mới sau khi gộp (đã đóng depot) ---
+        steps.append({
+            "vehicle": -1, "from": new_head, "to": new_tail,
+            "detail": f"Show merged route (rid={rid_i}) after merge"
+        })
+        snapshots.append(snapshot_from_paths([merged_path]))
+
         if (num_vehicles is not None) and (len(routes_dict) <= num_vehicles):
             steps.append({
                 "vehicle": -1, "from": depot_idx, "to": depot_idx,
-                "detail": f"Stop merging early: current open routes={len(routes_dict)} <= num_vehicles={num_vehicles}"
+                "detail": f"Stop merging early: open routes={len(routes_dict)} <= num_vehicles={num_vehicles}"
             })
             break
 
-    # ===== Đóng tuyến với depot, tính độ dài & steps “di chuyển” =====
+    # ========== (Tuỳ chọn) Đóng tuyến thật sự & bước di chuyển ==========
+    # Nếu bạn muốn thêm một snapshot cuối hiển thị toàn bộ tuyến sau khi dừng merge:
+    snapshots.append(snapshot_from_paths([r["path"] for r in routes_dict.values()]))
+
+    # (Giữ nguyên phần "đi tuyến" nếu bạn cần steps di chuyển chi tiết, có thể bật sau.)
     final_routes: List[List[int]] = []
     route_lengths: List[float] = []
-
     for k, (rid, r) in enumerate(routes_dict.items()):
         path = r["path"]
+        full, L = closed_route_and_len(path)
+        if full is None or not np.isfinite(L):
+            steps.append({"vehicle": k, "from": depot_idx, "to": depot_idx,
+                          "detail": f"Drop route #{rid} due to non-finite edge(s)"})
+            continue
+        final_routes.append(full)
+        route_lengths.append(L)
+    # # Có thể thêm 1 snapshot tổng kết cuối:
+    snapshots.append(VRPResult(routes=final_routes, route_lengths=route_lengths, steps=list(steps)))
+
+    return snapshots
+
+def clarke_wright_smallest_saving_first(
+    D: np.ndarray,
+    demands: Optional[List[float]] = None,
+    vehicle_capacity: Optional[float] = None,
+    max_stops_per_route: Optional[int] = None,  # để tương thích với signature
+    num_vehicles: Optional[int] = None,         # để tương thích với signature
+    depot_idx: int = 0,
+) -> List[VRPResult]:
+    """
+    Clarke–Wright Savings (smallest saving first).
+    Trả về danh sách VRPResult stepwise:
+      - Bước 0: mỗi customer là một tuyến riêng [depot, i, depot].
+      - Mỗi merge:
+          * Snapshot A: chỉ 2 tuyến chuẩn bị gộp
+          * Snapshot B: tuyến mới sau gộp
+    """
+
+    n = D.shape[0]
+    if demands is None:
+        demands = [0.0] * n
+
+    # ========== Helpers ==========
+    def closed_route_and_len(path: List[int]) -> Tuple[List[int], float]:
+        """Trả về route đóng depot và độ dài"""
         if not path:
-            continue
-
-        # Kiểm tra tính hữu hạn của toàn bộ chặng (depot->head, giữa các khách, tail->depot)
-        feasible = np.isfinite(D[depot_idx, path[0]]) and np.isfinite(D[path[-1], depot_idx])
+            return [depot_idx, depot_idx], 0.0
+        length = float(D[depot_idx, path[0]])
         for u, v in zip(path[:-1], path[1:]):
-            if not np.isfinite(D[u, v]):
-                feasible = False
-                break
-        if not feasible:
-            steps.append({
-                "vehicle": k, "from": depot_idx, "to": depot_idx,
-                "detail": f"Drop route #{rid} due to non-finite edge(s)"
-            })
+            length += float(D[u, v])
+        length += float(D[path[-1], depot_idx])
+        return [depot_idx] + path + [depot_idx], length
+
+    def snapshot_from_paths(paths: List[List[int]], steps: List[dict]) -> VRPResult:
+        routes, lens = [], []
+        for p in paths:
+            r, L = closed_route_and_len(p)
+            routes.append(r)
+            lens.append(L)
+        return VRPResult(routes=routes, route_lengths=lens, steps=list(steps))
+
+    # ========== Init singletons ==========
+    routes: Dict[int, Dict] = {
+        i: {"path": [i], "demand": float(demands[i])} for i in range(n) if i != depot_idx
+    }
+    steps: List[dict] = []
+
+    # Snapshot #0: mỗi khách là một tuyến riêng
+    snapshots: List[VRPResult] = []
+    steps.append({"vehicle": -1, "from": depot_idx, "to": depot_idx,
+                  "detail": f"Init {len(routes)} singleton routes"})
+    snapshots.append(snapshot_from_paths([r["path"] for r in routes.values()], steps))
+
+    # ========== Merge loop ==========
+    while True:
+        best_merge = {"saving": float("inf")}
+        current_route_ids = list(routes.keys())
+
+        # tìm cặp có saving nhỏ nhất
+        for i in range(len(current_route_ids)):
+            for j in range(i + 1, len(current_route_ids)):
+                r1_id = current_route_ids[i]
+                r2_id = current_route_ids[j]
+                r1 = routes[r1_id]
+                r2 = routes[r2_id]
+
+                if vehicle_capacity is not None and (r1["demand"] + r2["demand"] > vehicle_capacity):
+                    continue
+
+                endpoints1 = [r1["path"][0], r1["path"][-1]]
+                endpoints2 = [r2["path"][0], r2["path"][-1]]
+
+                for u in endpoints1:
+                    for v in endpoints2:
+                        saving = D[depot_idx, u] + D[depot_idx, v] - D[u, v]
+                        if saving < best_merge["saving"]:
+                            best_merge = {
+                                "saving": saving,
+                                "route1_id": r1_id,
+                                "route2_id": r2_id,
+                                "endpoint1": u,
+                                "endpoint2": v,
+                            }
+
+        if best_merge["saving"] == float("inf"):
+            break
+
+        r1_id, r2_id = best_merge["route1_id"], best_merge["route2_id"]
+        u, v = best_merge["endpoint1"], best_merge["endpoint2"]
+        path1, path2 = routes[r1_id]["path"], routes[r2_id]["path"]
+
+        # --- Merge logic ---
+        if path1[-1] == u and path2[0] == v:
+            merged_path = path1 + path2
+        elif path1[0] == u and path2[-1] == v:
+            merged_path = path2 + path1
+        elif path1[-1] == u and path2[-1] == v:
+            merged_path = path1 + list(reversed(path2))
+        elif path1[0] == u and path2[0] == v:
+            merged_path = list(reversed(path1)) + path2
+        else:
+            # không merge được -> bỏ
             continue
-
-        full_route = [depot_idx] + path + [depot_idx]
-        final_routes.append(full_route)
-
-        # Ghi step “ràng buộc đóng tuyến”: depot -> head
+        
+        # --- Snapshot A: hai tuyến chuẩn bị gộp ---
         steps.append({
-            "vehicle": k, "from": depot_idx, "to": path[0],
-            "detail": f"Vehicle {k}: depart depot to {path[0]}"
+            "vehicle": -1, "from": u, "to": v,
+            "detail": f"Prepare merge: route {r1_id} and {r2_id}, saving={best_merge['saving']:.3f}"
+        })
+        snapshots.append(snapshot_from_paths([path1, path2], steps))
+
+        routes[r1_id]["path"] = merged_path
+        routes[r1_id]["demand"] += routes[r2_id]["demand"]
+        del routes[r2_id]
+
+        steps.append({
+            "vehicle": -1, "from": u, "to": v,
+            "detail": f"Merged route {r1_id}+{r2_id} -> new demand={routes[r1_id]['demand']:.3f}"
         })
 
-        length = 0.0
-        cur = depot_idx
-        # Di chuyển qua các khách
-        for nxt in path:
-            length += float(D[cur, nxt])
-            steps.append({
-                "vehicle": k, "from": cur, "to": nxt,
-                "detail": f"Move {cur}->{nxt}, add {float(D[cur, nxt]):.3f}"
-            })
-            cur = nxt
+        # --- Snapshot B: tuyến mới sau khi gộp ---
+        snapshots.append(snapshot_from_paths([merged_path], steps))
+        
+        snapshots.append(snapshot_from_paths([r["path"] for r in routes.values()], steps))
 
-        # Quay về depot
-        length += float(D[cur, depot_idx])
-        steps.append({
-            "vehicle": k, "from": cur, "to": depot_idx,
-            "detail": f"Return {cur}->{depot_idx}, add {float(D[cur, depot_idx]):.3f}"
-        })
-
-        route_lengths.append(length)
-
-    return VRPResult(routes=final_routes, route_lengths=route_lengths, steps=steps)
+    return snapshots

@@ -9,8 +9,12 @@ from vrp_viz.map_viz.stepwise_map import VRPResult
 from vrp_viz.dataloader import get_run_data_from_prefix_path
 from vrp_viz.dataloader import get_run_data_from_local_search
 from vrp_viz.nearest_neighbor.viz_nearnest_neighbor import nearest_neighbor_v2
-from vrp_viz.clark_saving.viz_clarke_saving import clarke_wright_savings_vrp
-
+from vrp_viz.clark_saving.viz_clarke_saving import (
+    clarke_wright_smallest_saving_first as clarke_wright_savings_vrp,
+)
+from vrp_viz.cheapest_insertion.viz_cheapest_insertion import (
+    cheapest_insertion
+)
 from vrp_viz.local_search.shift import shift_local_search
 from vrp_viz.local_search.swap import swap_local_search
 from vrp_viz.local_search.two_opt_star import two_opt_star_local_search
@@ -32,7 +36,7 @@ app.add_middleware(
 # Pydantic Schemas
 # =====================
 
-Algorithm = Literal["nn", "clarke", "savings"]
+Algorithm = Literal["nn", "clarke", "cheapest"]
 DatasetType = Literal["random", "explicit"]
 
 
@@ -58,6 +62,7 @@ class ExplicitDataset(BaseModel):
 class SolveRequest(BaseModel):
     algorithm: Algorithm
     dataset: RandomDataset | ExplicitDataset
+    capacity: Optional[int] = Field(None, gt=0, description="Sức chứa xe (tùy chọn)")
 
 
 class SolveResponse(BaseModel):
@@ -67,9 +72,11 @@ class SolveResponse(BaseModel):
     solution: List[List[int]]
     html_res: Optional[str] = None
 
+
 class LocalSearchRequest(BaseModel):
     base_solution: SolveResponse
     improvement_type: Literal["2-opt", "shift", "swap"]
+
 
 # =====================
 # Validators
@@ -102,7 +109,7 @@ def solve(req: SolveRequest):
     else:
         ds: ExplicitDataset = req.dataset
 
-    if req.algorithm not in ["nn", "clarke", "savings"]:
+    if req.algorithm not in ["nn", "clarke", "cheapest"]:
         raise HTTPException(
             status_code=400, detail="Hiện chỉ hỗ trợ 'nn', 'clarke', 'savings'."
         )
@@ -114,12 +121,16 @@ def solve(req: SolveRequest):
     elif req.algorithm == "clarke":
         solver_name = "clarke_wright"
         function_solver = clarke_wright_savings_vrp
+    elif req.algorithm == "cheapest":
+        solver_name = "cheapest_insertion"
+        function_solver = cheapest_insertion
 
     dict_vrp, solution_name = get_run_data_from_prefix_path(
-        prefix_path, function_solver, solver_name
+        prefix_path, function_solver, solver_name, capacity=req.capacity
     )
 
-    total_distance = np.sum(dict_vrp["route_lengths"])
+    # round total_distance to 2 decimal places
+    total_distance = np.round(np.sum(dict_vrp["route_lengths"]), 2)
 
     return SolveResponse(
         received=req,
@@ -160,13 +171,10 @@ def local_search(req: LocalSearchRequest):
         function_solver = swap_local_search
 
     dict_vrp, solution_name = get_run_data_from_local_search(
-        prefix_path,
-        function_solver,
-        solver_name,
-        base_solution=base_req.solution
+        prefix_path, function_solver, solver_name, base_solution=base_req.solution
     )
 
-    total_distance = np.sum(dict_vrp[-1]["route_lengths"])
+    total_distance = np.round(np.sum(dict_vrp[-1]["route_lengths"]), 2)
 
     # Implement local search logic here
     return SolveResponse(

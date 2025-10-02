@@ -67,23 +67,8 @@ def have_run_check_solution(prefix_path: str, solver_name: str) -> bool:
 
 
 def get_run_data_from_prefix_path(
-    prefix_path: str, function_solver, solver_name: str
+    prefix_path: str, function_solver, solver_name: str, capacity: Optional[int] = None
 ):
-    if have_run_check_solution(prefix_path, solver_name):
-        # read html file and return byte to write to response
-        all_byte_html = open(
-            os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
-            "r",
-            encoding="utf-8",
-        ).read()
-        dict_vrp = json.load(
-            open(
-                os.path.join(prefix_path, f"vrp_solution_{solver_name}.json"),
-                "r",
-                encoding="utf-8",
-            )
-        )
-        return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
     customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
     distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
     cache_location_file = os.path.join(prefix_path, "vrp_routes_dev.json")
@@ -135,7 +120,7 @@ def get_run_data_from_prefix_path(
     ]
     node_ids = list(range(len(points)))
 
-    vehicle_capacity = 5
+    vehicle_capacity = capacity if capacity is not None else 5
     max_stops_per_route = None
     depot_idx = 0  # kho là node 0
 
@@ -179,23 +164,12 @@ def get_run_data_from_prefix_path(
 def get_run_data_from_local_search(
     prefix_path: str, function_solver, solver_name: str, base_solution
 ):
-    if have_run_check_solution(prefix_path, solver_name):
-        # read html file and return byte to write to response
-        all_byte_html = open(
-            os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
-            "r",
-            encoding="utf-8",
-        ).read()
-        dict_vrp = json.load(
-            open(
-                os.path.join(prefix_path, f"vrp_solution_{solver_name}.json"),
-                "r",
-                encoding="utf-8",
-            )
-        )
-        return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
     customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
     distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
+    cache_location_file = os.path.join(prefix_path, "vrp_routes_dev.json")
+    if os.path.exists(cache_location_file):
+        with open(cache_location_file, "r", encoding="utf-8") as f:
+            cache_location = json.load(f)
 
     warehouse_info = list_warehouses_infos[0]  # chọn kho mặc định
     N_VEHICLES = 9999
@@ -278,6 +252,7 @@ def get_run_data_from_local_search(
         points,
         node_ids,
         vrps,  # chỉ vẽ bước cuối cùng
+        cache_location,
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )   
     return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
