@@ -58,6 +58,11 @@ def shift_local_search(
         route_idx, pos_i, pos_j = best_move
         customer = current.routes[route_idx][pos_i]
 
+        # Snapshot before move
+        solutions.append(VRPResult(routes=[copy.deepcopy(current.routes[route_idx])],
+                                   route_lengths=[current.route_lengths[route_idx]],
+                                   steps=[]))
+
         # Remove customer from original position
         current.routes[route_idx].pop(pos_i)
 
@@ -71,6 +76,11 @@ def shift_local_search(
         # Update route length
         current.route_lengths[route_idx] = calculate_route_length(D, current.routes[route_idx])
         # current.route_lengths[route_idx] += best_delta
+
+        # Snapshot after move
+        solutions.append(VRPResult(routes=[copy.deepcopy(current.routes[route_idx])],
+                                   route_lengths=[current.route_lengths[route_idx]],
+                                   steps=[]))
 
         # Add to solutions list
         solutions.append(copy.deepcopy(current))

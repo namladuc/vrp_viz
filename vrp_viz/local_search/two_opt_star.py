@@ -65,6 +65,11 @@ def two_opt_star_local_search(
         route1 = current.routes[route_i][:]
         route2 = current.routes[route_j][:]
 
+        # Snapshot before move
+        solutions.append(VRPResult(routes=[copy.deepcopy(current.routes[route_i]), copy.deepcopy(current.routes[route_j])],
+                                   route_lengths=[current.route_lengths[route_i], current.route_lengths[route_j]],
+                                   steps=[]))
+
         # Create new routes by exchanging tails
         current.routes[route_i] = route1[:cut_i + 1] + route2[cut_j + 1:]
         current.routes[route_j] = route2[:cut_j + 1] + route1[cut_i + 1:]
@@ -72,6 +77,12 @@ def two_opt_star_local_search(
         # Update route lengths
         current.route_lengths[route_i] = calculate_route_length(D, current.routes[route_i])
         current.route_lengths[route_j] = calculate_route_length(D, current.routes[route_j])
+
+        # Snapshot after move
+        solutions.append(
+            VRPResult(routes=[copy.deepcopy(current.routes[route_i]), copy.deepcopy(current.routes[route_j])],
+                      route_lengths=[current.route_lengths[route_i], current.route_lengths[route_j]],
+                      steps=[]))
 
         # Add to solutions list
         solutions.append(copy.deepcopy(current))

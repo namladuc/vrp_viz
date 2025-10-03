@@ -52,12 +52,22 @@ def swap_local_search(
         # Apply the best move
         route_idx, pos_i, pos_j = best_move
 
+        # Snapshot before move
+        solutions.append(VRPResult(routes=[copy.deepcopy(current.routes[route_idx])],
+                                   route_lengths=[current.route_lengths[route_idx]],
+                                   steps=[]))
+
         # Swap customers
         current.routes[route_idx][pos_i], current.routes[route_idx][pos_j] = \
             current.routes[route_idx][pos_j], current.routes[route_idx][pos_i]
 
         # Update route length
         current.route_lengths[route_idx] += best_delta
+
+        # Snapshot after move
+        solutions.append(VRPResult(routes=[copy.deepcopy(current.routes[route_idx])],
+                                   route_lengths=[current.route_lengths[route_idx]],
+                                   steps=[]))
 
         # Add to solutions list
         solutions.append(copy.deepcopy(current))
