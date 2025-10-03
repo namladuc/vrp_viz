@@ -57,6 +57,15 @@ list_warehouses_infos = [
     },
 ]
 
+def calculate_route_length(route: List[int], distance_matrix: np.ndarray) -> float:
+        if len(route) <= 1:
+            return 0.0
+        length = 0.0
+        for i in range(len(route) - 1):
+            length += distance_matrix[route[i], route[i + 1]]
+        length += distance_matrix[route[-1], route[0]]  # return to depot
+        return length
+
 
 def have_run_check_solution(prefix_path: str, solver_name: str) -> bool:
     if not os.path.exists(
@@ -162,7 +171,7 @@ def get_run_data_from_prefix_path(
 
 
 def get_run_data_from_local_search(
-    prefix_path: str, function_solver, solver_name: str, base_solution
+    prefix_path: str, function_solver, solver_name: str, base_solution: List[List[int]], capacity: Optional[int] = None
 ):
     customers_df = pd.read_csv(os.path.join(prefix_path, "vrp_customers_dev.csv"))
     distance_matrix_df = pd.read_csv(os.path.join(prefix_path, "vrp_distances_dev.csv"))
@@ -214,9 +223,12 @@ def get_run_data_from_local_search(
     ]
     node_ids = list(range(len(points)))
 
-    vehicle_capacity = 5
+    vehicle_capacity = capacity if capacity is not None else 5
     max_stops_per_route = None
     depot_idx = 0  # kho là node 0
+    
+    # recalculate route lengths for the base solution
+    base_solution_route_lengths = [calculate_route_length(route, D) for route in base_solution]
 
     start_time = time.time()
     vrps: VRPResult = function_solver(
@@ -228,7 +240,7 @@ def get_run_data_from_local_search(
         max_stops_per_route=max_stops_per_route,
         current_solution=VRPResult(
             routes=base_solution,
-            route_lengths=[0 for _ in base_solution],  # not used in local search
+            route_lengths=base_solution_route_lengths,
             steps=[]          # not used in local search
         )
     )

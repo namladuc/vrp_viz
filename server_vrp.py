@@ -62,7 +62,7 @@ class ExplicitDataset(BaseModel):
 class SolveRequest(BaseModel):
     algorithm: Algorithm
     dataset: RandomDataset | ExplicitDataset
-    capacity: Optional[int] = Field(None, gt=0, description="Sức chứa xe (tùy chọn)")
+    capacity: int
 
 
 class SolveResponse(BaseModel):
@@ -171,7 +171,7 @@ def local_search(req: LocalSearchRequest):
         function_solver = swap_local_search
 
     dict_vrp, solution_name = get_run_data_from_local_search(
-        prefix_path, function_solver, solver_name, base_solution=base_req.solution
+        prefix_path, function_solver, solver_name, base_solution=base_req.solution, capacity=base_req.received.capacity
     )
 
     total_distance = np.round(np.sum(dict_vrp[-1]["route_lengths"]), 2)
