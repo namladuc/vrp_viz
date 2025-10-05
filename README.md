@@ -1,5 +1,15 @@
 # VRP Algorithm Visualizer
 
+## Environment Setup
+
+### 1. Install Dependencies
+
+Python 3.11.0
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Quick Start
 
 ### 1. Start the Server
