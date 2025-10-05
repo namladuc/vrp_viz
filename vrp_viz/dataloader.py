@@ -167,7 +167,7 @@ def get_run_data_from_prefix_path(
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )
 
-    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
+    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"), demands
 
 
 def get_run_data_from_local_search(
@@ -267,4 +267,4 @@ def get_run_data_from_local_search(
         cache_location,
         out_html=os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"),
     )   
-    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html")
+    return dict_vrp, os.path.join(prefix_path, f"vrp_solution_{solver_name}.html"), demands

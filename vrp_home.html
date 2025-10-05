@@ -20,33 +20,62 @@
     }
 
     /* Custom scrollbar for a cleaner look */
-    .config-panel::-webkit-scrollbar { width: 6px; }
-    .config-panel::-webkit-scrollbar-track { background: #f1f5f9; }
-    .config-panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    .config-panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .config-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .config-panel::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .config-panel::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .config-panel::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
     /* Simple animation for new table rows */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    .fade-in-row { animation: fadeIn 0.5s ease-out; }
+
+    .fade-in-row {
+      animation: fadeIn 0.5s ease-out;
+    }
 
     /* Styling for draggable points */
     .draggable-point {
-        cursor: grab;
-        transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        border: 1px solid #e2e8f0; /* slate-200 */
+      cursor: grab;
+      transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      border: 1px solid #e2e8f0;
+      /* slate-200 */
     }
+
     .draggable-point:hover {
-        background-color: #f1f5f9; /* slate-100 */
-        border-color: #cbd5e1; /* slate-300 */
+      background-color: #f1f5f9;
+      /* slate-100 */
+      border-color: #cbd5e1;
+      /* slate-300 */
     }
+
     .sortable-ghost {
-        opacity: 0.5;
-        background-color: #e0e7ff; /* indigo-100 */
-        border: 1px dashed #a5b4fc;
-        color: transparent; /* Hide text on ghost */
+      opacity: 0.5;
+      background-color: #e0e7ff;
+      /* indigo-100 */
+      border: 1px dashed #a5b4fc;
+      color: transparent;
+      /* Hide text on ghost */
     }
   </style>
 </head>
@@ -55,11 +84,14 @@
   <div class="flex flex-col lg:flex-row h-screen">
 
     <!-- Configuration Panel -->
-    <div class="config-panel w-full lg:w-1/3 lg:max-w-md bg-white border-r border-slate-200 p-6 shadow-lg overflow-y-auto">
+    <div
+      class="config-panel w-full lg:w-1/3 lg:max-w-md bg-white border-r border-slate-200 p-6 shadow-lg overflow-y-auto">
       <div class="flex items-center mb-6">
         <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
@@ -73,7 +105,8 @@
           <!-- Heuristic algorithm -->
           <div class="form-group">
             <label for="heuristic" class="block text-sm font-medium text-slate-700 mb-1">Thuật toán giải</label>
-            <select id="heuristic" name="heuristic" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            <select id="heuristic" name="heuristic"
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
               <option value="nn">Nearest Neighbor</option>
               <option value="clarke">Clarke-Wright</option>
               <option value="cheapest">Cheapest Insertion</option>
@@ -83,9 +116,12 @@
           <!-- Dataset selection -->
           <div class="form-group">
             <label for="dataset" class="block text-sm font-medium text-slate-700 mb-1">Bộ dữ liệu</label>
-            <select id="dataset" name="dataset" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            <select id="dataset" name="dataset"
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
               <option value="data10">Dữ liệu mẫu 1 (10 điểm)</option>
               <option value="data20">Dữ liệu mẫu 2 (20 điểm)</option>
+              <option value="data50">Dữ liệu mẫu 3 (50 điểm)</option>
+
               <!-- <option value="data50">Dữ liệu mẫu 3 (50 điểm)</option> -->
               <!-- <option value="random">Dữ liệu ngẫu nhiên</option> -->
             </select>
@@ -93,18 +129,21 @@
 
           <div class="form-group">
             <label for="Capacity" class="block text-sm font-medium text-slate-700 mb-1">Sức chứa xe</label>
-            <input type="number" id="Capacity" name="Capacity" min="5" value="10" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            <input type="number" id="Capacity" name="Capacity" min="5" value="10"
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
           </div>
 
           <!-- Random Data Options (Initially Hidden) -->
           <div id="random-data-options" class="hidden space-y-4 border-l-4 border-indigo-200 pl-4 ml-2 pt-2 pb-2">
             <div class="form-group">
               <label for="num-customers" class="block text-sm font-medium text-slate-700 mb-1">Số khách hàng</label>
-              <input type="number" id="num-customers" name="num-customers" value="50" min="1" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <input type="number" id="num-customers" name="num-customers" value="50" min="1"
+                class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
             </div>
             <div class="form-group">
               <label for="num-depots" class="block text-sm font-medium text-slate-700 mb-1">Vị trí điểm kho</label>
-              <select id="num-depots" name="num-depots" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <select id="num-depots" name="num-depots"
+                class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -116,25 +155,33 @@
 
         <!-- Action Buttons -->
         <div class="mt-10 space-y-4">
-          <button type="submit" class="w-full flex items-center justify-center py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
+          <button type="submit"
+            class="w-full flex items-center justify-center py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+              <path
+                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
             </svg>
             Chạy thuật toán
           </button>
 
-           <div class="form-group-local-search">
-            <label for="local-search-heuristic" class="block text-sm font-medium text-slate-700 mb-1">Local search heuristic</label>
-            <select id="local-search-heuristic" name="local-search-heuristic" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
-              <option value="2-opt">2-opt</option>
+          <div class="form-group-local-search">
+            <label for="local-search-heuristic" class="block text-sm font-medium text-slate-700 mb-1">Local search
+              heuristic</label>
+            <select id="local-search-heuristic" name="local-search-heuristic"
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+              <option value="2-opt">2-opt*</option>
               <option value="shift">shift</option>
               <option value="swap">swap</option>
             </select>
           </div>
 
-          <button id="run-local-search-btn" type="button" class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+          <button id="run-local-search-btn" type="button"
+            class="w-full flex items-center justify-center py-3 px-4 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-transform transform hover:scale-105 disabled:bg-slate-400 disabled:cursor-not-allowed"
+            disabled>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.96.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+              <path fill-rule="evenodd"
+                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.96.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                clip-rule="evenodd" />
             </svg>
             Chạy Local Search
           </button>
@@ -145,10 +192,11 @@
       <div id="solution-editor-section" class="mt-10 hidden">
         <h2 class="text-xl font-bold text-slate-900 mb-4">Chỉnh sửa lời giải</h2>
         <div class="border border-slate-200 rounded-lg shadow-sm p-4 bg-white">
-            <p class="text-sm text-slate-500 mb-4">Kéo thả các điểm trong mỗi tuyến để thay đổi thứ tự, sau đó chạy Local Search để tối ưu lại.</p>
-            <div id="solution-list" class="space-y-3">
-                <!-- Draggable solution routes will be injected here by JavaScript -->
-            </div>
+          <p class="text-sm text-slate-500 mb-4">Kéo thả các điểm trong mỗi tuyến để thay đổi thứ tự, sau đó chạy Local
+            Search để tối ưu lại.</p>
+          <div id="solution-list" class="space-y-3">
+            <!-- Draggable solution routes will be injected here by JavaScript -->
+          </div>
         </div>
       </div>
       <!-- ===== END: NEW SOLUTION EDITOR SECTION ===== -->
@@ -171,7 +219,8 @@
               </thead>
               <tbody id="results-body">
                 <tr id="placeholder-row">
-                  <td colspan="6" class="px-4 py-8 text-center text-slate-500">Chưa có kết quả. Hãy chạy một thuật toán.</td>
+                  <td colspan="6" class="px-4 py-8 text-center text-slate-500">Chưa có kết quả. Hãy chạy một thuật toán.
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -195,6 +244,18 @@
     const datasetSelect = document.getElementById('dataset');
     const randomDataOptions = document.getElementById('random-data-options');
     const solutionEditorSection = document.getElementById('solution-editor-section');
+    const banner = document.createElement('div');
+    banner.id = 'capacity-banner';
+    banner.className = 'hidden mb-3 p-2 rounded-md text-sm';
+    solutionEditorSection.parentElement.insertBefore(banner, solutionEditorSection);
+    function showBanner(msg, type = 'error') {
+      banner.textContent = msg;
+      banner.className = `mb-3 p-2 rounded-md text-sm ${type === 'error' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+      // 3s rồi ẩn
+      setTimeout(() => { banner.classList.add('hidden'); }, 3000);
+      banner.classList.remove('hidden');
+    }
+
     const solutionList = document.getElementById('solution-list');
     const localSearchBtn = document.getElementById('run-local-search-btn');
 
@@ -202,6 +263,7 @@
     let runCounter = 0;
     const resultsHistory = [];
     let currentSolutionData = null; // Store the raw solution array for editing
+    let currentDemands = [];
 
     // Event Listeners
     datasetSelect.addEventListener('change', () => {
@@ -215,7 +277,7 @@
     // Main function to run the initial algorithm
     async function handleAlgorithmRun(event) {
       event.preventDefault();
-      
+
       const payload = {
         algorithm: document.getElementById('heuristic').value,
         dataset: {
@@ -227,10 +289,10 @@
         capacity: parseInt(document.getElementById('Capacity').value, 10)
       };
       console.log("Submitting payload to /solve:", payload);
-      
+
       try {
         const startTime = performance.now();
-        
+
         const res = await fetch("http://localhost:8000/solve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -242,7 +304,7 @@
         console.log("API Response (/solve):", data);
 
         const executionTime = (performance.now() - startTime).toFixed(2);
-        
+
         if (placeholderRow) placeholderRow.style.display = 'none';
         runCounter++;
 
@@ -251,6 +313,7 @@
 
         // Store history and current solution
         currentSolutionData = data.solution;
+        currentDemands = data.demands || [];
         resultsHistory.push({
           id: runCounter,
           heuristic: heuristicText,
@@ -262,12 +325,12 @@
         });
 
         // Update UI
-        updateResultsTable(runCounter, heuristicText, datasetText, data.total_distance,  data.time_ms);
+        updateResultsTable(runCounter, heuristicText, datasetText, data.total_distance, data.time_ms);
         mapFrame.src = data.html_res;
-        displaySolutionForEditing(currentSolutionData);
-        
+        displaySolutionForEditing(currentSolutionData, currentDemands);
+
         localSearchBtn.disabled = false;
-        
+
       } catch (err) {
         console.error("Lỗi khi chạy thuật toán:", err);
         //alert("Có lỗi xảy ra khi chạy thuật toán. Vui lòng kiểm tra console.");
@@ -276,85 +339,85 @@
 
     // Main function to run the local search
     async function handleLocalSearchRun() {
-        const modifiedSolution = [];
-        const routeElements = solutionList.querySelectorAll('.route-container');
+      const modifiedSolution = [];
+      const routeElements = solutionList.querySelectorAll('.route-container');
 
-        routeElements.forEach(routeEl => {
-            const newRoute = [0]; // Start with depot
-            const pointElements = routeEl.querySelectorAll('.draggable-point');
-            pointElements.forEach(pointEl => {
-                newRoute.push(parseInt(pointEl.textContent, 10));
-            });
-            newRoute.push(0); // End with depot
-            modifiedSolution.push(newRoute);
+      routeElements.forEach(routeEl => {
+        const newRoute = [0]; // Start with depot
+        const pointElements = routeEl.querySelectorAll('.draggable-point');
+        pointElements.forEach(pointEl => {
+          newRoute.push(parseInt(pointEl.textContent, 10));
+        });
+        newRoute.push(0); // End with depot
+        modifiedSolution.push(newRoute);
+      });
+
+      if (modifiedSolution.length === 0) {
+        alert("Không có lời giải để chạy Local Search.");
+        return;
+      }
+
+      console.log("Modified solution for Local Search:", resultsHistory);
+      currentSolutionData = resultsHistory.length > 0 ? resultsHistory[resultsHistory.length - 1].res : null;
+      if (!currentSolutionData) {
+        alert("Không có lời giải gốc để tham chiếu. Vui lòng chạy một thuật toán trước.");
+        return;
+      }
+
+      currentSolutionData.solution = modifiedSolution;
+
+      const payload = {
+        "base_solution": currentSolutionData,
+        "improvement_type": document.getElementById('local-search-heuristic').value
+      };
+
+      console.log("Submitting modified solution to /local-search:", payload);
+
+
+      try {
+        const startTime = performance.now();
+
+        const res = await fetch("http://localhost:8000/local-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+
+        console.log("API Response (/local-search):", data);
+
+        const executionTime = (performance.now() - startTime).toFixed(2);
+
+        alert(`Local Search thành công! Chi phí mới: ${data.total_distance}`);
+
+        runCounter++;
+        currentSolutionData = data.solution; // Update current solution
+        resultsHistory.push({
+          id: runCounter,
+          heuristic: 'Local Search',
+          dataset: 'Từ chỉnh sửa',
+          totalCost: data.total_distance,
+          executionTime: data.time_ms,
+          mapUrl: data.html_res,
+          res: data
         });
 
-        if (modifiedSolution.length === 0) {
-            alert("Không có lời giải để chạy Local Search.");
-            return;
-        }
-        
-        console.log("Modified solution for Local Search:", resultsHistory);
-        currentSolutionData = resultsHistory.length > 0 ? resultsHistory[resultsHistory.length - 1].res : null;
-        if (!currentSolutionData) {
-            alert("Không có lời giải gốc để tham chiếu. Vui lòng chạy một thuật toán trước.");
-            return;
-        }
-
-        currentSolutionData.solution = modifiedSolution;
-
-        const payload = {
-          "base_solution": currentSolutionData,
-          "improvement_type": document.getElementById('local-search-heuristic').value
-        };
-
-        console.log("Submitting modified solution to /local-search:", payload);
-
-        
-        try {
-            const startTime = performance.now();
-
-            const res = await fetch("http://localhost:8000/local-search", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            const data = await res.json();
-            
-            console.log("API Response (/local-search):", data);
-            
-            const executionTime = (performance.now() - startTime).toFixed(2);
-
-            alert(`Local Search thành công! Chi phí mới: ${data.total_distance}`);
-            
-            runCounter++;
-            currentSolutionData = data.solution; // Update current solution
-            resultsHistory.push({
-                id: runCounter,
-                heuristic: 'Local Search',
-                dataset: 'Từ chỉnh sửa',
-                totalCost: data.total_distance,
-                executionTime: data.time_ms,
-                mapUrl: data.html_res,
-                res: data
-            });
-
-            // Update UI
-            updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_distance, data.time_ms);
-            mapFrame.src = data.html_res;
-            displaySolutionForEditing(currentSolutionData);
-        } catch (err) {
-            console.error("Lỗi khi chạy Local Search:", err);
-            alert("Chạy Local Search thất bại. API có thể chưa sẵn sàng.");
-        }
+        // Update UI
+        updateResultsTable(runCounter, 'Local Search', 'Từ chỉnh sửa', data.total_distance, data.time_ms);
+        mapFrame.src = data.html_res;
+        displaySolutionForEditing(currentSolutionData, currentDemands);
+      } catch (err) {
+        console.error("Lỗi khi chạy Local Search:", err);
+        alert("Chạy Local Search thất bại. API có thể chưa sẵn sàng.");
+      }
     }
 
     // UI Update Functions
     function updateResultsTable(id, heuristic, datasetText, totalCost, executionTime) {
-        const newRow = resultsBody.insertRow(0); // Insert at the top
-        newRow.className = 'bg-white border-b hover:bg-slate-50 transition-colors duration-200 ease-in-out fade-in-row';
-        newRow.innerHTML = `
+      const newRow = resultsBody.insertRow(0); // Insert at the top
+      newRow.className = 'bg-white border-b hover:bg-slate-50 transition-colors duration-200 ease-in-out fade-in-row';
+      newRow.innerHTML = `
           <td class="px-4 py-3 font-medium text-slate-900">${id}</td>
           <td class="px-4 py-3">${heuristic}</td>
           <td class="px-4 py-3">${datasetText}</td>
@@ -366,51 +429,123 @@
             </button>
           </td>`;
     }
-    
-    function displaySolutionForEditing(solution) {
-        solutionList.innerHTML = '';
-        
-        if (!solution || solution.length === 0) {
-            solutionEditorSection.classList.add('hidden');
-            return;
-        }
 
-        solution.forEach((route, index) => {
-            const routeWrapper = document.createElement('div');
-            routeWrapper.className = 'route-container border-t border-slate-200 pt-3';
-            
-            // Customer points that are draggable
-            const customerPoints = route.slice(1, -1);
-            
-            let pointsHTML = customerPoints.map(point => 
-                `<span class="draggable-point font-mono text-sm p-2 rounded-md bg-white shadow-sm">${point}</span>`
-            ).join('');
+    function displaySolutionForEditing(solution, demands) {
+      solutionList.innerHTML = '';
 
-            routeWrapper.innerHTML = `
-                <div class="flex items-center text-sm mb-2">
-                    <span class="font-semibold text-slate-600 mr-3">Tuyến ${index + 1}:</span>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
-                        <div class="sortable-points flex items-center gap-2">
-                            ${pointsHTML}
-                        </div>
-                        <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
-                    </div>
-                </div>
-            `;
-            
-            solutionList.appendChild(routeWrapper);
-            
-            const sortableArea = routeWrapper.querySelector('.sortable-points');
-            new Sortable(sortableArea, { 
-                group: 'shared-routes', // This allows dragging between lists
-                animation: 150, 
-                ghostClass: 'sortable-ghost' 
-            });
+      if (!solution || solution.length === 0) {
+        solutionEditorSection.classList.add('hidden');
+        return;
+      }
+
+      // Helpers
+      const getCapacity = () => parseInt(document.getElementById('Capacity').value, 10) || 0;
+      const demandOf = (id) => (Array.isArray(demands) && demands[id] != null) ? Number(demands[id]) : 0;
+
+      // Tính tải hiện tại của 1 tuyến từ DOM container
+      const computeRouteLoadFromContainer = (container) => {
+        const pts = container.querySelectorAll('.draggable-point');
+        let sum = 0;
+        pts.forEach(p => { sum += demandOf(parseInt(p.textContent, 10)); });
+        return sum;
+      };
+
+      const updateAllRouteHeaders = () => {
+        const cap = getCapacity();
+        const routes = solutionList.querySelectorAll('.route-container');
+        routes.forEach((routeEl, idx) => {
+          const load = computeRouteLoadFromContainer(routeEl);
+          const head = routeEl.querySelector('.route-head');
+          if (head) head.textContent = `Tuyến ${idx + 1}: (Tải ${load} / ${cap})`;
         });
-        
-        solutionEditorSection.classList.remove('hidden');
+      };
+
+      // Render từng tuyến
+      solution.forEach((route, index) => {
+        const routeWrapper = document.createElement('div');
+        routeWrapper.className = 'route-container border-t border-slate-200 pt-3';
+
+        // Customer points draggable (bỏ depot 0 ở 2 đầu)
+        const customerPoints = route.slice(1, -1);
+
+        const pointsHTML = customerPoints.map(point => `
+      <span class="draggable-point font-mono text-sm p-2 rounded-md bg-white shadow-sm">${point}</span>
+    `).join('');
+
+        routeWrapper.innerHTML = `
+      <div class="flex items-center text-sm mb-2">
+        <span class="route-head font-semibold text-slate-600 mr-3"></span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
+          <div class="sortable-points flex items-center gap-2">
+            ${pointsHTML}
+          </div>
+          <span class="font-mono text-sm p-2 rounded-md bg-slate-200 text-slate-600">0</span>
+        </div>
+      </div>
+    `;
+
+        solutionList.appendChild(routeWrapper);
+      });
+
+      // Sau khi render xong mới gắn Sortable để các list biết nhau
+      const sortables = [];
+      const cap = getCapacity();
+
+      const opts = {
+        group: {
+          name: 'shared-routes',
+          // Cho phép kéo qua lại; kiểm tra ở onMove
+          pull: true,
+          put: true
+        },
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onMove: function (evt, originalEvent) {
+          const { dragged, to, from } = evt; // dragged = element đang kéo
+          const movingId = parseInt(dragged.textContent, 10);
+          const movingDemand = demandOf(movingId);
+
+          // Nếu kéo trong cùng một tuyến -> luôn ok (chỉ đổi thứ tự)
+          if (to === from) return true;
+
+          // Tải hiện tại của tuyến đích:
+          // - Nếu Sortable đã hiển thị placeholder (evt.related), có thể load đang tính thiếu 1 chút.
+          // - Cách an toàn: tạm tính như sau:
+          let loadTo = 0;
+          const ptsTo = to.querySelectorAll('.draggable-point');
+          ptsTo.forEach(p => { loadTo += demandOf(parseInt(p.textContent, 10)); });
+
+          // Khi đang hover, phần tử chưa thực sự chèn vào "to"; nên cần cộng thử movingDemand
+          const projected = loadTo + movingDemand;
+
+          if (projected > getCapacity()) {
+            showBanner(`Không thể kéo: vượt sức chứa (dự kiến ${projected} > ${getCapacity()}).`);
+            return false; // chặn di chuyển
+          }
+          return true;
+        },
+        onAdd: function () {
+          updateAllRouteHeaders();
+        },
+        onRemove: function () {
+          updateAllRouteHeaders();
+        },
+        onUpdate: function () {
+          updateAllRouteHeaders();
+        }
+      };
+
+      // Tạo Sortable cho tất cả các tuyến
+      const containers = solutionList.querySelectorAll('.sortable-points');
+      containers.forEach(c => sortables.push(new Sortable(c, opts)));
+
+      // Set label đầu tiên
+      updateAllRouteHeaders();
+
+      solutionEditorSection.classList.remove('hidden');
     }
+
 
     // Helper Functions
     function handleViewMapClick(event) {
@@ -429,5 +564,5 @@
     }
   </script>
 </body>
-</html>
 
+</html>

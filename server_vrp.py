@@ -71,6 +71,7 @@ class SolveResponse(BaseModel):
     total_distance: float
     solution: List[List[int]]
     html_res: Optional[str] = None
+    demands: List[int]
 
 
 class LocalSearchRequest(BaseModel):
@@ -125,7 +126,7 @@ def solve(req: SolveRequest):
         solver_name = "cheapest_insertion"
         function_solver = cheapest_insertion
 
-    dict_vrp, solution_name = get_run_data_from_prefix_path(
+    dict_vrp, solution_name, demands = get_run_data_from_prefix_path(
         prefix_path, function_solver, solver_name, capacity=req.capacity
     )
 
@@ -138,6 +139,7 @@ def solve(req: SolveRequest):
         time_ms=dict_vrp.get("duration_seconds", 0) * 1000,
         solution=dict_vrp.get("routes", []),
         html_res=solution_name,
+        demands=demands
     )
 
 
@@ -170,7 +172,7 @@ def local_search(req: LocalSearchRequest):
         solver_name = "swap"
         function_solver = swap_local_search
 
-    dict_vrp, solution_name = get_run_data_from_local_search(
+    dict_vrp, solution_name, demands = get_run_data_from_local_search(
         prefix_path, function_solver, solver_name, base_solution=base_req.solution, capacity=base_req.received.capacity
     )
 
@@ -183,4 +185,5 @@ def local_search(req: LocalSearchRequest):
         time_ms=dict_vrp[-1].get("duration_seconds", 0) * 1000,
         solution=dict_vrp[-1].get("routes", []),
         html_res=solution_name,
+        demands=demands
     )
